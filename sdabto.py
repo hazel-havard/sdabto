@@ -222,10 +222,11 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
 
     def do_shop(self, arg):
         '''Buy more groceries'''
-        self.character.shopping()
-        print("You buy another week of groceries")
-        if self.character.groceries == 42:
-            print("Your fridge is full")
+        if self.character.groceries > 21:
+            print("Your fridge is too full for more groceries")
+        else:
+            self.character.shopping()
+            print("You buy another week of groceries")
 
     def do_game(self, arg):
         '''Play video games.  Please supply a number of hours, as in 'game 1' '''
