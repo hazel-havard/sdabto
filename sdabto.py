@@ -1,3 +1,5 @@
+import cmd
+
 #globals
 #costs in dollars
 rent = 150
@@ -21,14 +23,12 @@ class Character:
         #in hours
         self.last_sleep = 0
         #in days
-        self.last_excercise = 1
+        self.last_exercise = 1
         #in days
         self.last_social = 1
         #number of meals
         self.groceries = 21
-        # [normal|depression 1|depression 2|depression 3|manic]
-        self.disease_stage = 'normal'
-        self.hours_played = 0
+        self.hours_played = 8
 
     def add_hours(self, hours):
         #if we crossed a day boundary
@@ -110,30 +110,50 @@ class Character:
         self.base_mood = self.base_mood + 10 * hours
         self.last_social = 0
 
-def print_help():
-    print("'work x': work for x hours to earn money")
-    print("'sleep x': sleep for x hours to regain energy")
-    print("'eat': eat a meal")
-    print("'exercise': go for a run")
-    print("'shopping': go grocery shopping")
-    print("'game x': play video games for x hours")
-    print("'socialize x': hang out with friends for x hours")
-    print("'status': get information about your character")
+class Sdabto_Cmd(cmd.Cmd):
+    intro = '''Welcome to Some Days Are Better Than Others
+Trigger Warning: Suicide
+Type 'help' or '?' for some suggestions of what to do.\n'''
+    prompt = 'What would you like to do? '
 
-def print_status(character):
-    pass
+    def __init__(self, character):
+        super(Sdabto_Cmd, self).__init__()
+        self.character = character
+
+    def preloop(self):
+        pass
+
+    def postloop(self):
+        print("Goodbye")
+
+    def default(self, line):
+        print("Sorry, that command is not recognized.  Try 'help' or '?' for suggestions")
+
+    def do_exit(self, arg):
+        '''Exit the program'''
+        return True
+
+    def do_quit(self, arg):
+        '''Exit the program'''
+        return True
+
+    def do_status(self, arg):
+        '''Return your vital statistics'''
+        mood = self.character.get_mood()
+        energy = self.character.get_energy()
+        day = (self.character.hours_played // 24) + 1
+        hour = self.character.hours_played % 24
+        print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +\
+                " Energy: " + str(energy) + " Money: $" + str(self.character.money) +\
+                " Food: " + str(self.character.groceries) + " meals")
+        #for debugging
+        print("last_meal: "  + str(self.character.last_meal))
+        print("last_sleep: "  + str(self.character.last_sleep))
+        print("last_exercise: "  + str(self.character.last_exercise))
+        print("last_social: "  + str(self.character.last_social))
 
 def main():
-    print("Welcome to Some Days Are Better Than Others")
-    print("Trigger warning: suicide")
-    print("Type 'help' for suggestions")
-    character = Character()
-    while(True):
-        selection = input("What would you like to do?")
-        if selection not in selection_choices:
-            print("Sorry, that option is not available (try 'help' for suggestions)")
-            continue
-
+    Sdabto_Cmd(Character()).cmdloop()
 
 if __name__ == '__main__':
     main()
