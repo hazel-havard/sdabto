@@ -120,9 +120,6 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         super(Sdabto_Cmd, self).__init__()
         self.character = character
 
-    def preloop(self):
-        pass
-
     def postloop(self):
         print("Goodbye")
 
