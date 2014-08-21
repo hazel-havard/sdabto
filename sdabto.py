@@ -29,6 +29,8 @@ class Character:
         #number of meals
         self.groceries = 21
         self.hours_played = 8
+        self.hours_gamed = 0
+        self.hours_socialized = 0
 
     def change_mood(self, diff):
         self.base_mood = self.base_mood + diff
@@ -47,6 +49,8 @@ class Character:
     def add_hours(self, hours):
         #if we crossed a day boundary
         if (self.hours_played // 24) < ((self.hours_played + hours) // 24):
+            self.hours_gamed = 0
+            self.hours_socialized = 0
             self.last_exercise = self.last_exercise + 1
             self.last_social = self.last_social + 1
         self.last_meal = self.last_meal + hours
@@ -118,17 +122,16 @@ class Character:
 
     def game(self, hours):
         self.add_hours(hours)
-        #fix this later to track hours spent gaming per day
-        if hours > 4:
-            hours = 4
+        hours = max(0, min(hours, 4 - self.hours_gamed))
+        self.hours_gamed = self.hours_gamed + hours
         self.change_mood(5 * hours)
 
     def socialize(self, hours):
         self.add_hours(hours)
         self.money = self.money - 10 * hours
         self.change_energy(-5 * hours)
-        if hours > 3:
-            hours = 3
+        hours = max(0, min(hours, 3 - self.hours_socialized))
+        self.hours_socialized = self.hours_socialized + hours
         self.change_mood(10 * hours)
         self.last_social = 0
 
