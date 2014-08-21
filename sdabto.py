@@ -126,6 +126,18 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
     def default(self, line):
         print("Sorry, that command is not recognized.  Try 'help' or '?' for suggestions")
 
+    def postcmd(self, stop, line):
+        if not stop:
+            if self.character.last_meal > meal_interval:
+                print("You feel hungry")
+            if self.character.last_sleep > sleep_interval:
+                print("You feel sleepy")
+            if self.character.last_exercise > exercise_interval:
+                print("You feel lethargic")
+            if self.character.last_social > social_interval:
+                print("You feel lonely")
+        return stop
+
     def sanitize(self, arg):
         try:
             hours = int(arg)
