@@ -56,11 +56,11 @@ class Character:
     def get_mood(self):
         mood = self.base_mood
         if self.last_meal > meal_interval:
-            mood = mood - 10 * (self.last_meal - meal_interval)
+            mood = mood - min(10 * (self.last_meal - meal_interval), 30)
         if self.last_exercise > exercise_interval:
-            mood = mood - 10 * (self.last_exercise - exercise_interval)
+            mood = mood - min(5 * (self.last_exercise - exercise_interval), 20)
         if self.last_social > social_interval:
-            mood = mood - 10 * (self.last_social - social_interval)
+            mood = mood - min(5 * (self.last_social - social_interval), 20)
         if mood < 0:
             mood = 0
         elif mood > 100:
@@ -70,11 +70,11 @@ class Character:
     def get_energy(self):
         energy = self.base_energy
         if self.last_meal > meal_interval:
-            energy = energy - 10 * (self.last_meal - meal_interval)
+            energy = energy - min(10 * (self.last_meal - meal_interval), 30)
         if self.last_sleep > sleep_interval:
-            energy = energy - 10 * (self.last_sleep - sleep_interval)
+            energy = energy - min(5 * (self.last_sleep - sleep_interval), 20)
         if self.last_exercise > exercise_interval:
-            energy = energy - 10 * (self.last_exercise - exercise_interval)
+            energy = energy - min(5 * (self.last_exercise - exercise_interval), 20)
         if energy < 0:
             energy = 0
         elif energy > 100:
