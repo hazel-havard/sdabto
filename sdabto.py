@@ -32,7 +32,7 @@ class Character:
 
     def add_hours(self, hours):
         #if we crossed a day boundary
-        if (self.hours_played / 24) < ((self.hours_played + hours) / 24):
+        if (self.hours_played // 24) < ((self.hours_played + hours) // 24):
             self.last_exercise = self.last_exercise + 1
             self.last_social = self.last_social + 1
         self.last_meal = self.last_meal + hours
@@ -101,7 +101,7 @@ class Character:
             hours = 4
         self.base_mood = self.base_mood + 5 * hours
 
-    def hang_out(self, hours):
+    def socialize(self, hours):
         self.add_hours(hours)
         self.money = self.money - 10 * hours
         self.base_energy = self.base_energy - 5 * hours
@@ -129,6 +129,14 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
     def default(self, line):
         print("Sorry, that command is not recognized.  Try 'help' or '?' for suggestions")
 
+    def sanitize(self, arg):
+        try:
+            hours = int(arg)
+        except ValueError:
+            print("This command requires a number of hours, as in 'sleep 8'")
+            return None
+        return hours
+
     def do_exit(self, arg):
         '''Exit the program'''
         return True
@@ -151,6 +159,56 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         print("last_sleep: "  + str(self.character.last_sleep))
         print("last_exercise: "  + str(self.character.last_exercise))
         print("last_social: "  + str(self.character.last_social))
+
+    def do_eat(self, arg):
+        '''Eat a meal'''
+        self.character.eat()
+        print("You eat a meal.  You now have " + str(self.character.groceries) + " meals left")
+
+    def do_work(self, arg):
+        '''Work to gain money.  Please supply a number of hours, as in 'work 4' '''
+        hours = self.sanitize(arg)
+        if hours is None:
+            return
+        self.character.work(hours)
+        print("You go to your computer and work.  You now have $" + str(self.character.money))
+
+    def do_sleep(self, arg):
+        '''Sleep to get your energy back.  Please supply a number of hours, as in 'sleep 8' '''
+        hours = self.sanitize(arg)
+        if hours is None:
+            return
+        self.character.sleep(hours)
+        print("You sleep for " + str(hours) + " hours.  Your energy is now " + str(self.character.get_energy()))
+
+    def do_exercise(self, arg):
+        '''Go for a run'''
+        self.character.exercise()
+        print("You go for a run")
+
+    def do_shop(self, arg):
+        '''Buy more groceries'''
+        self.character.shopping()
+        print("You buy another week of groceries")
+        if self.character.groceries == 42:
+            print("Your fridge is full")
+
+    def do_game(self, arg):
+        '''Play video games.  Please supply a number of hours, as in 'game 1' '''
+        hours = self.sanitize(arg)
+        if hours is None:
+            return
+        self.character.game(hours)
+        print("You play on your computer.  Your mood is now " + str(self.character.get_mood()))
+
+    def do_socialize(self, arg):
+        '''Go out with friends.  Please supply a number of hours, as in 'socialize 2' '''
+        hours = self.sanitize(arg)
+        if hours is None:
+            return
+        self.character.socialize(hours)
+        print("You hang out with friends.  You now have $" + str(self.character.money))
+
 
 def main():
     Sdabto_Cmd(Character()).cmdloop()
