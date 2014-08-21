@@ -30,6 +30,20 @@ class Character:
         self.groceries = 21
         self.hours_played = 8
 
+    def change_mood(self, diff):
+        self.base_mood = self.base_mood + diff
+        if self.base_mood < 0:
+            self.base_mood = 0
+        elif self.base_mood > 100:
+            self.base_mood = 100
+
+    def change_energy(self, diff):
+        self.base_energy = self.base_energy + diff
+        if self.base_energy < 0:
+            self.base_energy = 0
+        elif self.base_energy > 100:
+            self.base_energy = 100
+
     def add_hours(self, hours):
         #if we crossed a day boundary
         if (self.hours_played // 24) < ((self.hours_played + hours) // 24):
@@ -47,6 +61,10 @@ class Character:
             mood = mood - 10 * (self.last_exercise - exercise_interval)
         if self.last_social > social_interval:
             mood = mood - 10 * (self.last_social - social_interval)
+        if mood < 0:
+            mood = 0
+        elif mood > 100:
+            mood = 100
         return mood
 
     def get_energy(self):
@@ -57,13 +75,17 @@ class Character:
             energy = energy - 10 * (self.last_sleep - sleep_interval)
         if self.last_exercise > exercise_interval:
             energy = energy - 10 * (self.last_exercise - exercise_interval)
+        if energy < 0:
+            energy = 0
+        elif energy > 100:
+            energy = 100
         return energy
 
     def work(self, hours):
         self.add_hours(hours)
         self.money = self.money + 10 * hours
-        self.base_energy = self.base_energy - 5 * hours
-        self.base_mood = self.base_mood - 5 * hours
+        self.change_energy(-5 * hours)
+        self.change_mood(-5 * hours)
 
     def sleep(self, hours):
         self.add_hours(hours)
@@ -84,8 +106,8 @@ class Character:
     def exercise(self):
         self.add_hours(1)
         self.last_exercise = 0
-        self.base_mood = self.base_mood + 5
-        self.base_energy = self.base_energy - 5
+        self.change_mood(5)
+        self.change_energy(-5)
 
     def shopping(self):
         self.add_hours(1)
@@ -99,15 +121,15 @@ class Character:
         #fix this later to track hours spent gaming per day
         if hours > 4:
             hours = 4
-        self.base_mood = self.base_mood + 5 * hours
+        self.change_mood(5 * hours)
 
     def socialize(self, hours):
         self.add_hours(hours)
         self.money = self.money - 10 * hours
-        self.base_energy = self.base_energy - 5 * hours
+        self.change_energy(-5 * hours)
         if hours > 3:
             hours = 3
-        self.base_mood = self.base_mood + 10 * hours
+        self.change_mood(10 * hours)
         self.last_social = 0
 
 class Sdabto_Cmd(cmd.Cmd):
