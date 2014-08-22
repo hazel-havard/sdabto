@@ -2,13 +2,13 @@ import cmd
 
 #globals
 #costs in dollars
-rent = 150
-groceries = 50
+RENT = 150
+GROCERIES = 50
 #allowable time between events.
-meal_interval = 6 #hours
-sleep_interval = 16 #hours
-exercise_interval = 2 #days
-social_interval = 2 #days
+MEAL_INTERVAL = 6 #hours
+SLEEP_INTERVAL = 16 #hours
+EXERCISE_INTERVAL = 2 #days
+SOCIAL_INTERVAL = 2 #days
 
 class Character:
     def __init__(self):
@@ -54,7 +54,7 @@ class Character:
             self.last_exercise = self.last_exercise + 1
             self.last_social = self.last_social + 1
             if ((self.hours_played + hours) // 24) % 7 == 0:
-                self.money = self.money - rent
+                self.money = self.money - RENT
                 print("Rent deducted.  You now have $" + str(self.money))
         self.last_meal = self.last_meal + hours
         self.last_sleep = self.last_sleep + hours
@@ -62,12 +62,12 @@ class Character:
 
     def get_mood(self):
         mood = self.base_mood
-        if self.last_meal > meal_interval:
-            mood = mood - min(10 * (self.last_meal - meal_interval), 30)
-        if self.last_exercise > exercise_interval:
-            mood = mood - min(5 * (self.last_exercise - exercise_interval), 20)
-        if self.last_social > social_interval:
-            mood = mood - min(5 * (self.last_social - social_interval), 20)
+        if self.last_meal > MEAL_INTERVAL:
+            mood = mood - min(10 * (self.last_meal - MEAL_INTERVAL), 30)
+        if self.last_exercise > EXERCISE_INTERVAL:
+            mood = mood - min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
+        if self.last_social > SOCIAL_INTERVAL:
+            mood = mood - min(5 * (self.last_social - SOCIAL_INTERVAL), 20)
         if mood < 0:
             mood = 0
         elif mood > 100:
@@ -76,12 +76,12 @@ class Character:
 
     def get_energy(self):
         energy = self.base_energy
-        if self.last_meal > meal_interval:
-            energy = energy - min(10 * (self.last_meal - meal_interval), 30)
-        if self.last_sleep > sleep_interval:
-            energy = energy - min(5 * (self.last_sleep - sleep_interval), 20)
-        if self.last_exercise > exercise_interval:
-            energy = energy - min(5 * (self.last_exercise - exercise_interval), 20)
+        if self.last_meal > MEAL_INTERVAL:
+            energy = energy - min(10 * (self.last_meal - MEAL_INTERVAL), 30)
+        if self.last_sleep > SLEEP_INTERVAL:
+            energy = energy - min(5 * (self.last_sleep - SLEEP_INTERVAL), 20)
+        if self.last_exercise > EXERCISE_INTERVAL:
+            energy = energy - min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
         if energy < 0:
             energy = 0
         elif energy > 100:
@@ -118,7 +118,7 @@ class Character:
 
     def shopping(self):
         self.add_hours(1)
-        self.money = self.money - 50
+        self.money = self.money - GROCERIES
         self.groceries = self.groceries + 21
         if self.groceries > 42:
             self.groceries = 42
@@ -156,13 +156,13 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
 
     def postcmd(self, stop, line):
         if not stop:
-            if self.character.last_meal > meal_interval:
+            if self.character.last_meal > MEAL_INTERVAL:
                 print("You feel hungry")
-            if self.character.last_sleep > sleep_interval:
+            if self.character.last_sleep > SLEEP_INTERVAL:
                 print("You feel sleepy")
-            if self.character.last_exercise > exercise_interval:
+            if self.character.last_exercise > EXERCISE_INTERVAL:
                 print("You feel lethargic")
-            if self.character.last_social > social_interval:
+            if self.character.last_social > SOCIAL_INTERVAL:
                 print("You feel lonely")
         return stop
 
