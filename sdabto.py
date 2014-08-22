@@ -53,7 +53,7 @@ class Character:
             self.hours_socialized = 0
             self.last_exercise = self.last_exercise + 1
             self.last_social = self.last_social + 1
-            if (self.hours_played // 24) % 7 == 0:
+            if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money = self.money - rent
                 print("Rent deducted.  You now have $" + str(self.money))
         self.last_meal = self.last_meal + hours
