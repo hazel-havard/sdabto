@@ -204,6 +204,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
 
     def do_work(self, arg):
         '''Work to gain money.  Please supply a number of hours, as in 'work 4' '''
+        if self.character.get_energy() < 20:
+            print("You try to work but your eyes can't focus on the screen.")
+            return
         hours = self.sanitize(arg)
         if hours is None:
             return
@@ -220,11 +223,17 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
 
     def do_exercise(self, arg):
         '''Go for a run'''
+        if self.character.get_energy() < 20:
+            print("Contemplating a run makes you feel exhausted.  Maybe tomorrow...")
+            return
         self.character.exercise()
         print("You go for a run")
 
     def do_shop(self, arg):
         '''Buy more groceries'''
+        if self.character.get_energy() < 10:
+            print("You're too tired to haul home food.  There must be something in the fridge...")
+            return
         if self.character.groceries > 21:
             print("Your fridge is too full for more groceries")
         else:
@@ -241,6 +250,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
 
     def do_socialize(self, arg):
         '''Go out with friends.  Please supply a number of hours, as in 'socialize 2' '''
+        if self.character.get_energy() < 20:
+            print("You can't summon the energy to face people right now.  How about a quiet night in?")
+            return
         hours = self.sanitize(arg)
         if hours is None:
             return
