@@ -199,6 +199,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
 
     def do_eat(self, arg):
         '''Eat a meal'''
+        if self.character.last_meal < 4:
+            print("You're not hungry right now")
+            return
         self.character.eat()
         print("You eat a meal.  You now have " + str(self.character.groceries) + " meals left")
 
