@@ -31,6 +31,7 @@ class Character:
         self.hours_played = 8
         self.hours_gamed = 0
         self.hours_socialized = 0
+        self.dead = False
 
     def change_mood(self, diff):
         self.base_mood = self.base_mood + diff
@@ -59,6 +60,8 @@ class Character:
         self.last_meal = self.last_meal + hours
         self.last_sleep = self.last_sleep + hours
         self.hours_played = self.hours_played + hours
+        if self.last_meal > 24 * 7:
+            self.dead = True
 
     def get_mood(self):
         mood = self.base_mood
@@ -155,6 +158,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         print("Sorry, that command is not recognized.  Try 'help' or '?' for suggestions")
 
     def postcmd(self, stop, line):
+        if self.character.dead:
+            print("You have died.  Game over")
+            return True
         if not stop:
             if self.character.last_meal > MEAL_INTERVAL:
                 print("You feel hungry")
