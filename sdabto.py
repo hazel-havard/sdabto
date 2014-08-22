@@ -210,6 +210,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         hours = self.sanitize(arg)
         if hours is None:
             return
+        if hours > 8:
+            print("After 8 hours your mind starts to wander...")
+            hours = 8
         self.character.work(hours)
         print("You go to your computer and work.  You now have $" + str(self.character.money))
 
@@ -218,6 +221,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         hours = self.sanitize(arg)
         if hours is None:
             return
+        if hours > 12:
+            print("After 12 hours you wake up.")
+            hours = 12
         self.character.sleep(hours)
         print("You sleep for " + str(hours) + " hours.  Your energy is now " + str(self.character.get_energy()))
 
@@ -245,6 +251,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         hours = self.sanitize(arg)
         if hours is None:
             return
+        if hours > 8:
+            print("After 8 hours you lose interest")
+            hours = 8
         self.character.game(hours)
         print("You play on your computer.  Your mood is now " + str(self.character.get_mood()))
 
@@ -256,6 +265,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         hours = self.sanitize(arg)
         if hours is None:
             return
+        if hours > 6:
+            print("None of your friends are free for more than 6 hours")
+            hours = 6
         self.character.socialize(hours)
         print("You hang out with friends.  You now have $" + str(self.character.money))
 
