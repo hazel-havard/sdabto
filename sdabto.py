@@ -243,6 +243,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if self.character.get_energy() < 10:
             print("You're too tired to haul home food.  There must be something in the fridge...")
             return
+        if self.character.hours_played % 24 < 8 or self.character.hours_played % 24 > 22:
+            print("The grocery store is closed right now.")
+            return
         if self.character.groceries > 21:
             print("Your fridge is too full for more groceries")
         else:
