@@ -17,6 +17,9 @@ NORMAL_LENGTH = 7
 #energy and mood caps for different stages
 NORMAL_CAP = 100
 DEPRESSION1_CAP = 80
+#additional time before hunger is displayed
+NORMAL_HUNGER_DELAY = 0
+DEPRESSION1_HUNGER_DELAY = 2
 
 class Character:
     def __init__(self):
@@ -40,6 +43,7 @@ class Character:
         self.hours_socialized = 0
         self.disease_stage = NORMAL
         self.disease_days = 0
+        self.hunger_delay = NORMAL_HUNGER_DELAY
         self.dead = False
 
     def change_mood(self, diff):
@@ -67,6 +71,7 @@ class Character:
             if self.disease_stage == NORMAL and self.disease_days >= NORMAL_LENGTH:
                 self.disease_stage = DEPRESSION1
                 self.mood_energy_cap = DEPRESSION1_CAP
+                self.hunger_delay = DEPRESSION1_HUNGER_DELAY
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money = self.money - RENT
                 print("Rent deducted.  You now have $" + str(self.money))
@@ -175,7 +180,7 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             print("You have died.  Game over")
             return True
         if not stop:
-            if self.character.last_meal > MEAL_INTERVAL:
+            if self.character.last_meal > MEAL_INTERVAL + self.character.hunger_delay:
                 print("You feel hungry")
             if self.character.last_sleep > SLEEP_INTERVAL:
                 print("You feel sleepy")
