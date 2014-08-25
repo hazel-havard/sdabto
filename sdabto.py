@@ -20,9 +20,18 @@ SUICIDAL_IDEATION_MINOR = ["You wonder how many advil you would have to take bef
 SUICIDAL_IDEATION_MAJOR = ["You look up the LD50 of advil and figure out how much you'd need to kill yourself",\
         "You make a plan to kill yourself by cutting your throat in a running shower so there'd be no mess",\
         "You compose an email to the coroner so that no one you know would have to find your body"]
+SUICIDAL_IDEATION_EXTREME = ["You hold a pillow over your head until you pass out to see what suffocating is like,"\
+        "You summon the strength to buy a lethal dose of advil",\
+        "You pack your things so they will be easier to take care of when you're gone"]
 #disease stages
-DEPRESSION2 = {"LENGTH": 7,\
+DEPRESSION3 = {"LENGTH": 2,\
         "NEXT_STAGE": None,\
+        "CAP": 10,\
+        "HUNGER_DELAY": 24,\
+        "THOUGHTS": SUICIDAL_IDEATION_EXTREME,\
+        "THOUGHT_FREQ": 1}
+DEPRESSION2 = {"LENGTH": 7,\
+        "NEXT_STAGE": DEPRESSION3,\
         "CAP": 40,\
         "HUNGER_DELAY": 8,\
         "THOUGHTS": SUICIDAL_IDEATION_MAJOR,\
