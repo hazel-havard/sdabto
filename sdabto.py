@@ -1,4 +1,5 @@
 import cmd
+import random
 
 #globals
 #costs in dollars
@@ -9,15 +10,26 @@ MEAL_INTERVAL = 6 #hours
 SLEEP_INTERVAL = 16 #hours
 EXERCISE_INTERVAL = 2 #days
 SOCIAL_INTERVAL = 2 #days
+#messages
+NORMAL_THOUGHTS = ["You daydream about saving a baby from a fire",\
+        "You imagine what you would do if you were fabulously wealthy",\
+        "You fondly remember an old friend"]
+SUICIDAL_IDEATION_MINOR = ["You wonder how many advil you would have to take before you died",\
+        "You wonder if your pen knife is sharp enough to cut your throat",\
+        "You suddenly imagine shooting yourself"]
 #disease stages
 DEPRESSION1 = {"LENGTH": 7,\
         "NEXT_STAGE": None,\
         "CAP": 80,\
-        "HUNGER_DELAY": 2}
+        "HUNGER_DELAY": 2,\
+        "THOUGHTS": SUICIDAL_IDEATION_MINOR,\
+        "THOUGHT_FREQ": 1/24}
 NORMAL = {"LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION1,\
         "CAP": 100,\
-        "HUNGER_DELAY": 0}
+        "HUNGER_DELAY": 0,\
+        "THOUGHTS": NORMAL_THOUGHTS,\
+        "THOUGHT_FREQ": 1/24}
 
 class Character:
     def __init__(self):
@@ -72,6 +84,8 @@ class Character:
         self.last_meal = self.last_meal + hours
         self.last_sleep = self.last_sleep + hours
         self.hours_played = self.hours_played + hours
+        if random.random() < self.disease_stage["THOUGHT_FREQ"] * hours:
+            print(random.choice(self.disease_stage["THOUGHTS"]))
         if self.last_meal > 24 * 7:
             self.dead = True
 
