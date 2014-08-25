@@ -9,6 +9,11 @@ MEAL_INTERVAL = 6 #hours
 SLEEP_INTERVAL = 16 #hours
 EXERCISE_INTERVAL = 2 #days
 SOCIAL_INTERVAL = 2 #days
+#disease stages
+NORMAL = 0
+DEPRESSION1 = 1
+#stage lengths
+NORMAL_LENGTH = 7
 
 class Character:
     def __init__(self):
@@ -31,6 +36,8 @@ class Character:
         self.hours_played = 8
         self.hours_gamed = 0
         self.hours_socialized = 0
+        self.disease_stage = NORMAL
+        self.disease_days = 0
         self.dead = False
 
     def change_mood(self, diff):
@@ -54,6 +61,9 @@ class Character:
             self.hours_socialized = 0
             self.last_exercise = self.last_exercise + 1
             self.last_social = self.last_social + 1
+            self.disease_days = self.disease_days + 1
+            if self.disease_stage == NORMAL and self.disease_days >= NORMAL_LENGTH:
+                self.disease_stage = DEPRESSION1
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money = self.money - RENT
                 print("Rent deducted.  You now have $" + str(self.money))
