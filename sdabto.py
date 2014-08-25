@@ -17,9 +17,18 @@ NORMAL_THOUGHTS = ["You daydream about saving a baby from a fire",\
 SUICIDAL_IDEATION_MINOR = ["You wonder how many advil you would have to take before you died",\
         "You wonder if your pen knife is sharp enough to cut your throat",\
         "You suddenly imagine shooting yourself"]
+SUICIDAL_IDEATION_MAJOR = ["You look up the LD50 of advil and figure out how much you'd need to kill yourself",\
+        "You make a plan to kill yourself by cutting your throat in a running shower so there'd be no mess",\
+        "You compose an email to the coroner so that no one you know would have to find your body"]
 #disease stages
-DEPRESSION1 = {"LENGTH": 7,\
+DEPRESSION2 = {"LENGTH": 7,\
         "NEXT_STAGE": None,\
+        "CAP": 40,\
+        "HUNGER_DELAY": 8,\
+        "THOUGHTS": SUICIDAL_IDEATION_MAJOR,\
+        "THOUGHT_FREQ": 12/24}
+DEPRESSION1 = {"LENGTH": 7,\
+        "NEXT_STAGE": DEPRESSION2,\
         "CAP": 80,\
         "HUNGER_DELAY": 2,\
         "THOUGHTS": SUICIDAL_IDEATION_MINOR,\
