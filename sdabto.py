@@ -95,6 +95,9 @@ class Character:
             self.last_social = self.last_social + 1
             self.disease_days = self.disease_days + 1
             if self.disease_days >= self.disease_stage["LENGTH"]:
+                if self.disease_stage["NEXT_STAGE"] is None:
+                    self.dead = True
+                    return
                 self.disease_stage = self.disease_stage["NEXT_STAGE"]
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money = self.money - RENT
