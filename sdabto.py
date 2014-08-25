@@ -14,12 +14,14 @@ NORMAL = 0
 DEPRESSION1 = 1
 #stage lengths
 NORMAL_LENGTH = 7
+#energy and mood caps for different stages
+NORMAL_CAP = 100
+DEPRESSION1_CAP = 80
 
 class Character:
     def __init__(self):
-        #out of 100
+        self.mood_energy_cap = NORMAL_CAP
         self.base_mood = 80
-        #out of 100
         self.base_energy = 80
         #In whole numbers of dollars
         self.money = 200
@@ -44,15 +46,15 @@ class Character:
         self.base_mood = self.base_mood + diff
         if self.base_mood < 0:
             self.base_mood = 0
-        elif self.base_mood > 100:
-            self.base_mood = 100
+        elif self.base_mood > self.mood_energy_cap:
+            self.base_mood = self.mood_energy_cap
 
     def change_energy(self, diff):
         self.base_energy = self.base_energy + diff
         if self.base_energy < 0:
             self.base_energy = 0
-        elif self.base_energy > 100:
-            self.base_energy = 100
+        elif self.base_energy > self.mood_energy_cap:
+            self.base_energy = self.mood_energy_cap
 
     def add_hours(self, hours):
         #if we crossed a day boundary
@@ -64,6 +66,7 @@ class Character:
             self.disease_days = self.disease_days + 1
             if self.disease_stage == NORMAL and self.disease_days >= NORMAL_LENGTH:
                 self.disease_stage = DEPRESSION1
+                self.mood_energy_cap = DEPRESSION1_CAP
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money = self.money - RENT
                 print("Rent deducted.  You now have $" + str(self.money))
@@ -83,8 +86,8 @@ class Character:
             mood = mood - min(5 * (self.last_social - SOCIAL_INTERVAL), 20)
         if mood < 0:
             mood = 0
-        elif mood > 100:
-            mood = 100
+        elif mood > self.mood_energy_cap:
+            mood = self.mood_energy_cap
         return mood
 
     def get_energy(self):
@@ -97,8 +100,8 @@ class Character:
             energy = energy - min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
         if energy < 0:
             energy = 0
-        elif energy > 100:
-            energy = 100
+        elif energy > self.mood_energy_cap:
+            energy = self.mood_energy_cap
         return energy
 
     def work(self, hours):
@@ -114,9 +117,9 @@ class Character:
         if hours > 8:
             hours = 8
         self.last_sleep = 0
-        self.base_energy = 10 * hours
+        self.base_energy = min((10 * hours), self.mood_energy_cap)
         if hours > 6:
-            self.base_energy = self.base_energy + 20
+            self.change_energy(20)
 
     def eat(self):
         self.add_hours(1)
