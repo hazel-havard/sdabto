@@ -10,20 +10,17 @@ SLEEP_INTERVAL = 16 #hours
 EXERCISE_INTERVAL = 2 #days
 SOCIAL_INTERVAL = 2 #days
 #disease stages
-NORMAL = 0
-DEPRESSION1 = 1
-#stage lengths
-NORMAL_LENGTH = 7
-#energy and mood caps for different stages
-NORMAL_CAP = 100
-DEPRESSION1_CAP = 80
-#additional time before hunger is displayed
-NORMAL_HUNGER_DELAY = 0
-DEPRESSION1_HUNGER_DELAY = 2
+DEPRESSION1 = {"LENGTH": 7,\
+        "NEXT_STAGE": None,\
+        "CAP": 80,\
+        "HUNGER_DELAY": 2}
+NORMAL = {"LENGTH": 7,\
+        "NEXT_STAGE": DEPRESSION1,\
+        "CAP": 100,\
+        "HUNGER_DELAY": 0}
 
 class Character:
     def __init__(self):
-        self.mood_energy_cap = NORMAL_CAP
         self.base_mood = 80
         self.base_energy = 80
         #In whole numbers of dollars
@@ -43,22 +40,21 @@ class Character:
         self.hours_socialized = 0
         self.disease_stage = NORMAL
         self.disease_days = 0
-        self.hunger_delay = NORMAL_HUNGER_DELAY
         self.dead = False
 
     def change_mood(self, diff):
         self.base_mood = self.base_mood + diff
         if self.base_mood < 0:
             self.base_mood = 0
-        elif self.base_mood > self.mood_energy_cap:
-            self.base_mood = self.mood_energy_cap
+        elif self.base_mood > self.disease_stage["CAP"]:
+            self.base_mood = self.disease_stage["CAP"]
 
     def change_energy(self, diff):
         self.base_energy = self.base_energy + diff
         if self.base_energy < 0:
             self.base_energy = 0
-        elif self.base_energy > self.mood_energy_cap:
-            self.base_energy = self.mood_energy_cap
+        elif self.base_energy > self.disease_stage["CAP"]:
+            self.base_energy = self.disease_stage["CAP"]
 
     def add_hours(self, hours):
         #if we crossed a day boundary
@@ -68,10 +64,8 @@ class Character:
             self.last_exercise = self.last_exercise + 1
             self.last_social = self.last_social + 1
             self.disease_days = self.disease_days + 1
-            if self.disease_stage == NORMAL and self.disease_days >= NORMAL_LENGTH:
-                self.disease_stage = DEPRESSION1
-                self.mood_energy_cap = DEPRESSION1_CAP
-                self.hunger_delay = DEPRESSION1_HUNGER_DELAY
+            if self.disease_days >= self.disease_stage["LENGTH"]:
+                self.disease_stage = self.disease_stage["NEXT_STAGE"]
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money = self.money - RENT
                 print("Rent deducted.  You now have $" + str(self.money))
@@ -91,8 +85,8 @@ class Character:
             mood = mood - min(5 * (self.last_social - SOCIAL_INTERVAL), 20)
         if mood < 0:
             mood = 0
-        elif mood > self.mood_energy_cap:
-            mood = self.mood_energy_cap
+        elif mood > self.disease_stage["CAP"]:
+            mood = self.disease_stage["CAP"]
         return mood
 
     def get_energy(self):
@@ -105,8 +99,8 @@ class Character:
             energy = energy - min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
         if energy < 0:
             energy = 0
-        elif energy > self.mood_energy_cap:
-            energy = self.mood_energy_cap
+        elif energy > self.disease_stage["CAP"]:
+            energy = self.disease_stage["CAP"]
         return energy
 
     def work(self, hours):
@@ -122,7 +116,7 @@ class Character:
         if hours > 8:
             hours = 8
         self.last_sleep = 0
-        self.base_energy = min((10 * hours), self.mood_energy_cap)
+        self.base_energy = min((10 * hours), self.disease_stage["CAP"])
         if hours > 6:
             self.change_energy(20)
 
@@ -180,7 +174,7 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             print("You have died.  Game over")
             return True
         if not stop:
-            if self.character.last_meal > MEAL_INTERVAL + self.character.hunger_delay:
+            if self.character.last_meal > MEAL_INTERVAL + self.character.disease_stage["HUNGER_DELAY"]:
                 print("You feel hungry")
             if self.character.last_sleep > SLEEP_INTERVAL:
                 print("You feel sleepy")
