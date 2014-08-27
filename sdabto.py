@@ -10,6 +10,13 @@ MEAL_INTERVAL = 6 #hours
 SLEEP_INTERVAL = 16 #hours
 EXERCISE_INTERVAL = 2 #days
 SOCIAL_INTERVAL = 2 #days
+#list of people you can call
+CALL_DICT = {"parents": ["mom", "mother", "dad", "father", "parents"],\
+        "friend": ["friend", "friends"],\
+        "hospital": ["hospital", "police", "ambulance", "911"],\
+        "doctor": ["doctor", "psychiatrist"],\
+        "helpline": ["helpline", "suicide helpline", "hotline", "suicide hotline"],\
+        "psychologist": ["therapist", "councellor", "psychologist"]}
 #messages
 NORMAL_THOUGHTS = ["You daydream about saving a baby from a fire",\
         "You imagine what you would do if you were fabulously wealthy",\
@@ -210,6 +217,51 @@ class Character:
         self.change_mood(10 * hours)
         self.last_social = 0
 
+    def call(self, recipient):
+        if recipient in CALL_DICT["parents"]:
+            if self.get_mood() < 20:
+                print("Your parents notice how rough you're feeling and are worried")
+            elif self.get_mood() < 50:
+                print("Your parents notice you're feeling down and try to cheer you up")
+            else:
+                print("You have a lovely chat with your parents")
+            if self.money < 0:
+                self.money = 0
+                print("Your parents bail you out of your debt.  You feel guilty")
+        elif recipient in CALL_DICT["friend"]:
+            if self.get_mood() < 20:
+                print("Your friend notices how rough you're feeling and is worried")
+            elif self.get_mood() < 50:
+                print("Your friend notices you're not very happy and tries to cheer you up")
+            else:
+                print("You have a lovely chat with a friend")
+        elif recipient in CALL_DICT["hospital"]:
+            if self.disease_stage == DEPRESSION3:
+                print("You are admitted to the hospital")
+            else:
+                print("You are turned away.  Try 'call doctor'")
+        elif recipient in CALL_DICT["doctor"]:
+            if self.disease_stage == DEPRESSION3:
+                print("The doctor gets you admitted to the hospital")
+            elif self.disease_stage == DEPRESSION2:
+                print("The doctor puts you on medication")
+            elif self.disease_stage == DEPRESSION1:
+                print("Your symptoms have not been going on long enough.  Please come back in a week")
+            elif self.disease_stage == NORMAL:
+                print("You seem to be in fine health")
+        elif recipient in CALL_DICT["helpline"]:
+            print("The helpline details resources available to you.  Try 'call psychologist', 'call doctor', or 'call hospital'")
+        elif recipient in CALL_DICT["psychologist"]:
+            if self.disease_stage == DEPRESSION3:
+                print("The psychologist gets you admitted to the hospital")
+            elif self.disease_stage == DEPRESSION2:
+                print("The psychologist recommends you see a doctor ('call doctor'), eat, sleep, exercise, and stay social")
+            elif self.disease_stage == DEPRESSION1:
+                print("The pyschologist recommends you make sure you are eating, sleeping, exercising and staying social")
+            elif self.disease_stage == NORMAL:
+                print("They psychologist patiently listens to your problems")
+        self.add_hours(1)
+
 class Sdabto_Cmd(cmd.Cmd):
     intro = '''Welcome to Some Days Are Better Than Others
 Trigger Warning: Suicide
@@ -360,6 +412,18 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             hours = 6
         print("You hang out with friends.  You now have $" + str(self.character.money))
         self.character.socialize(hours)
+
+    def do_call(self, arg):
+        '''Call someone on the phone, as in 'call mom' '''
+        caller_known = False
+        for key, synonym_list in CALL_DICT.items():
+            if arg in synonym_list:
+                caller_known = True
+                break
+        if not caller_known:
+            print("Sorry, recipient unknown")
+            return
+        self.character.call(arg)
 
 
 def main():
