@@ -277,8 +277,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if self.character.last_meal < 4:
             print("You're not hungry right now")
             return
-        self.character.eat()
         print("You eat a meal.  You now have " + str(self.character.groceries) + " meals left")
+        self.character.eat()
 
     def do_work(self, arg):
         '''Work to gain money.  Please supply a number of hours, as in 'work 4' '''
@@ -291,8 +291,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if hours > 8:
             print("After 8 hours your mind starts to wander...")
             hours = 8
-        self.character.work(hours)
         print("You go to your computer and work.  You now have $" + str(self.character.money))
+        self.character.work(hours)
 
     def do_sleep(self, arg):
         '''Sleep to get your energy back.  Please supply a number of hours, as in 'sleep 8' '''
@@ -302,8 +302,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if hours > 12:
             print("After 12 hours you wake up.")
             hours = 12
-        self.character.sleep(hours)
         print("You sleep for " + str(hours) + " hours.  Your energy is now " + str(self.character.get_energy()))
+        self.character.sleep(hours)
         if self.character.disease_stage["WAKEUP_DELAY"] > 0:
             hour_str = " hours"
             if self.character.disease_stage["WAKEUP_DELAY"] == 1:
@@ -316,8 +316,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if self.character.get_energy() < 20:
             print("Contemplating a run makes you feel exhausted.  Maybe tomorrow...")
             return
-        self.character.exercise()
         print("You go for a run")
+        self.character.exercise()
 
     def do_shop(self, arg):
         '''Buy more groceries'''
@@ -330,8 +330,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if self.character.groceries > 21:
             print("Your fridge is too full for more groceries")
         else:
-            self.character.shopping()
             print("You buy another week of groceries")
+            self.character.shopping()
 
     def do_game(self, arg):
         '''Play video games.  Please supply a number of hours, as in 'game 1' '''
@@ -341,8 +341,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if hours > 8:
             print("After 8 hours you lose interest")
             hours = 8
-        self.character.game(hours)
         print("You play on your computer.  Your mood is now " + str(self.character.get_mood()))
+        self.character.game(hours)
 
     def do_socialize(self, arg):
         '''Go out with friends.  Please supply a number of hours, as in 'socialize 2' '''
@@ -358,8 +358,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if hours > 6:
             print("None of your friends are free for more than 6 hours")
             hours = 6
-        self.character.socialize(hours)
         print("You hang out with friends.  You now have $" + str(self.character.money))
+        self.character.socialize(hours)
 
 
 def main():
