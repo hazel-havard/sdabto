@@ -110,6 +110,14 @@ class Character:
                 if self.disease_stage["NEXT_STAGE"] is None:
                     self.dead = True
                     return
+                if self.disease_stage == DEPRESSION2:
+                    print("6 months pass this way, playing video games and barely scraping by")
+                    self.money = 0
+                    self.last_exercise = 7
+                    self.last_social = 7
+                    self.hours_gamed = 0
+                    self.hours_socialized = 0
+                    self.hours_played = self.hours_played + (24 * 30 * 6)
                 self.disease_stage = self.disease_stage["NEXT_STAGE"]
                 print(self.disease_stage["INTRO_MESSAGE"])
             if ((self.hours_played + hours) // 24) % 7 == 0:
