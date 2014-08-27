@@ -30,28 +30,32 @@ DEPRESSION3 = {"LENGTH": 2,\
         "HUNGER_DELAY": 24,\
         "THOUGHTS": SUICIDAL_IDEATION_EXTREME,\
         "THOUGHT_FREQ": 1,\
-        "SOCIALIZE_FAILURE": 1}
+        "SOCIALIZE_FAILURE": 1,\
+        "WAKEUP_DELAY": 4}
 DEPRESSION2 = {"LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION3,\
         "CAP": 40,\
         "HUNGER_DELAY": 8,\
         "THOUGHTS": SUICIDAL_IDEATION_MAJOR,\
         "THOUGHT_FREQ": 12/24,\
-        "SOCIALIZE_FAILURE": 0.8}
+        "SOCIALIZE_FAILURE": 0.8,\
+        "WAKEUP_DELAY": 2}
 DEPRESSION1 = {"LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION2,\
         "CAP": 80,\
         "HUNGER_DELAY": 2,\
         "THOUGHTS": SUICIDAL_IDEATION_MINOR,\
         "THOUGHT_FREQ": 1/24,\
-        "SOCIALIZE_FAILURE": 0.2}
+        "SOCIALIZE_FAILURE": 0.2,\
+        "WAKEUP_DELAY": 1}
 NORMAL = {"LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION1,\
         "CAP": 100,\
         "HUNGER_DELAY": 0,\
         "THOUGHTS": NORMAL_THOUGHTS,\
         "THOUGHT_FREQ": 1/24,\
-        "SOCIALIZE_FAILURE": 0}
+        "SOCIALIZE_FAILURE": 0,\
+        "WAKEUP_DELAY": 0}
 
 class Character:
     def __init__(self):
@@ -286,6 +290,12 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             hours = 12
         self.character.sleep(hours)
         print("You sleep for " + str(hours) + " hours.  Your energy is now " + str(self.character.get_energy()))
+        if self.character.disease_stage["WAKEUP_DELAY"] > 0:
+            hour_str = " hours"
+            if self.character.disease_stage["WAKEUP_DELAY"] == 1:
+                hour_str = " hour"
+            print("You stay in bed for " + str(self.character.disease_stage["WAKEUP_DELAY"]) + hour_str)
+            self.character.add_hours(self.character.disease_stage["WAKEUP_DELAY"])
 
     def do_exercise(self, arg):
         '''Go for a run'''
