@@ -24,7 +24,8 @@ SUICIDAL_IDEATION_EXTREME = ["You hold a pillow over your head until you pass ou
         "You summon the strength to buy a lethal dose of advil",\
         "You pack your things so they will be easier to take care of when you're gone"]
 #disease stages
-DEPRESSION3 = {"LENGTH": 2,\
+DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
+        "LENGTH": 2,\
         "NEXT_STAGE": None,\
         "CAP": 10,\
         "HUNGER_DELAY": 24,\
@@ -32,7 +33,8 @@ DEPRESSION3 = {"LENGTH": 2,\
         "THOUGHT_FREQ": 1,\
         "SOCIALIZE_FAILURE": 1,\
         "WAKEUP_DELAY": 4}
-DEPRESSION2 = {"LENGTH": 7,\
+DEPRESSION2 = {"INTRO_MESSAGE": "You feel rough",\
+        "LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION3,\
         "CAP": 40,\
         "HUNGER_DELAY": 8,\
@@ -40,7 +42,8 @@ DEPRESSION2 = {"LENGTH": 7,\
         "THOUGHT_FREQ": 12/24,\
         "SOCIALIZE_FAILURE": 0.8,\
         "WAKEUP_DELAY": 2}
-DEPRESSION1 = {"LENGTH": 7,\
+DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
+        "LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION2,\
         "CAP": 80,\
         "HUNGER_DELAY": 2,\
@@ -48,7 +51,8 @@ DEPRESSION1 = {"LENGTH": 7,\
         "THOUGHT_FREQ": 1/24,\
         "SOCIALIZE_FAILURE": 0.2,\
         "WAKEUP_DELAY": 1}
-NORMAL = {"LENGTH": 7,\
+NORMAL = {"INTRO_MESSAGE": None,\
+        "LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION1,\
         "CAP": 100,\
         "HUNGER_DELAY": 0,\
@@ -107,6 +111,7 @@ class Character:
                     self.dead = True
                     return
                 self.disease_stage = self.disease_stage["NEXT_STAGE"]
+                print(self.disease_stage["INTRO_MESSAGE"])
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money = self.money - RENT
                 print("Rent deducted.  You now have $" + str(self.money))
