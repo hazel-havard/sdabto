@@ -119,6 +119,7 @@ class Character:
                     self.hours_socialized = 0
                     self.hours_played = self.hours_played + (24 * 30 * 6)
                 self.disease_stage = self.disease_stage["NEXT_STAGE"]
+                self.disease_days = 0
                 print(self.disease_stage["INTRO_MESSAGE"])
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money = self.money - RENT
