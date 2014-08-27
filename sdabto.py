@@ -29,25 +29,29 @@ DEPRESSION3 = {"LENGTH": 2,\
         "CAP": 10,\
         "HUNGER_DELAY": 24,\
         "THOUGHTS": SUICIDAL_IDEATION_EXTREME,\
-        "THOUGHT_FREQ": 1}
+        "THOUGHT_FREQ": 1,\
+        "SOCIALIZE_FAILURE": 1}
 DEPRESSION2 = {"LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION3,\
         "CAP": 40,\
         "HUNGER_DELAY": 8,\
         "THOUGHTS": SUICIDAL_IDEATION_MAJOR,\
-        "THOUGHT_FREQ": 12/24}
+        "THOUGHT_FREQ": 12/24,\
+        "SOCIALIZE_FAILURE": 0.8}
 DEPRESSION1 = {"LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION2,\
         "CAP": 80,\
         "HUNGER_DELAY": 2,\
         "THOUGHTS": SUICIDAL_IDEATION_MINOR,\
-        "THOUGHT_FREQ": 1/24}
+        "THOUGHT_FREQ": 1/24,\
+        "SOCIALIZE_FAILURE": 0.2}
 NORMAL = {"LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION1,\
         "CAP": 100,\
         "HUNGER_DELAY": 0,\
         "THOUGHTS": NORMAL_THOUGHTS,\
-        "THOUGHT_FREQ": 1/24}
+        "THOUGHT_FREQ": 1/24,\
+        "SOCIALIZE_FAILURE": 0}
 
 class Character:
     def __init__(self):
@@ -320,6 +324,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         '''Go out with friends.  Please supply a number of hours, as in 'socialize 2' '''
         if self.character.get_energy() < 20:
             print("You can't summon the energy to face people right now.  How about a quiet night in?")
+            return
+        if random.random() < self.character.disease_stage["SOCIALIZE_FAILURE"]:
+            print("You get too anxious thinking about people right now.  How about a quiet night in?")
             return
         hours = self.sanitize(arg)
         if hours is None:
