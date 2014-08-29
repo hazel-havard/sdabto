@@ -114,6 +114,7 @@ class Character:
             self.base_energy = self.disease_stage["CAP"]
 
     def add_hours(self, hours):
+        messages = []
         #if we crossed a day boundary
         if (self.hours_played // 24) < ((self.hours_played + hours) // 24):
             self.hours_gamed = 0
@@ -124,9 +125,10 @@ class Character:
             if self.disease_days >= self.disease_stage["LENGTH"]:
                 if self.disease_stage["NEXT_STAGE"] is None:
                     self.dead = True
-                    return
+                    messages.append("You have committed suicide")
+                    return messages
                 if self.disease_stage == DEPRESSION2:
-                    print("6 months pass this way, playing video games and barely scraping by")
+                    messages.append("6 months pass this way, playing video games and barely scraping by")
                     self.money = 0
                     self.last_exercise = 7
                     self.last_social = 7
@@ -135,17 +137,19 @@ class Character:
                     self.hours_played = self.hours_played + (24 * 30 * 6)
                 self.disease_stage = self.disease_stage["NEXT_STAGE"]
                 self.disease_days = 0
-                print(self.disease_stage["INTRO_MESSAGE"])
+                messages.append(self.disease_stage["INTRO_MESSAGE"])
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money = self.money - RENT
-                print("Rent deducted.  You now have $" + str(self.money))
+                messages.append("Rent deducted.  You now have $" + str(self.money))
         self.last_meal = self.last_meal + hours
         self.last_sleep = self.last_sleep + hours
         self.hours_played = self.hours_played + hours
         if random.random() < self.disease_stage["THOUGHT_FREQ"] * hours:
-            print(random.choice(self.disease_stage["THOUGHTS"]))
+            messages.append(random.choice(self.disease_stage["THOUGHTS"]))
         if self.last_meal > 24 * 7:
+            messages.append("You have starved to death")
             self.dead = True
+        return messages
 
     def get_mood(self):
         mood = self.base_mood
@@ -176,13 +180,14 @@ class Character:
         return energy
 
     def work(self, hours):
-        self.add_hours(hours)
+        messages = self.add_hours(hours)
         self.money = self.money + 10 * hours
         self.change_energy(-5 * hours)
         self.change_mood(-5 * hours)
+        return messages
 
     def sleep(self, hours):
-        self.add_hours(hours)
+        messages = self.add_hours(hours)
         if hours < 4:
             return
         if hours > 8:
@@ -191,84 +196,91 @@ class Character:
         self.base_energy = min((10 * hours), self.disease_stage["CAP"])
         if hours > 6:
             self.change_energy(20)
+        return messages
 
     def eat(self):
-        self.add_hours(1)
+        messages = self.add_hours(1)
         self.last_meal = 0
         self.groceries = self.groceries - 1
+        return messages
 
     def exercise(self):
-        self.add_hours(1)
+        messages = self.add_hours(1)
         self.last_exercise = 0
         self.change_mood(5)
         self.change_energy(-5)
+        return messages
 
     def shopping(self):
-        self.add_hours(1)
+        messages = self.add_hours(1)
         self.money = self.money - GROCERIES
         self.groceries = self.groceries + 21
         if self.groceries > 42:
             self.groceries = 42
+        return messages
 
     def game(self, hours):
-        self.add_hours(hours)
+        messages = self.add_hours(hours)
         hours = max(0, min(hours, 4 - self.hours_gamed))
         self.hours_gamed = self.hours_gamed + hours
         self.change_mood(5 * hours)
+        return messages
 
     def socialize(self, hours):
-        self.add_hours(hours)
+        messages = self.add_hours(hours)
         self.money = self.money - 10 * hours
         self.change_energy(-5 * hours)
         hours = max(0, min(hours, 3 - self.hours_socialized))
         self.hours_socialized = self.hours_socialized + hours
         self.change_mood(10 * hours)
         self.last_social = 0
+        return messages
 
     def call(self, recipient):
+        messages = self.add_hours(1)
         if recipient in CALL_DICT["parents"]:
             if self.get_mood() < 20:
-                print("Your parents notice how rough you're feeling and are worried")
+                messages.append("Your parents notice how rough you're feeling and are worried")
             elif self.get_mood() < 50:
-                print("Your parents notice you're feeling down and try to cheer you up")
+                messages.append("Your parents notice you're feeling down and try to cheer you up")
             else:
-                print("You have a lovely chat with your parents")
+                messages.append("You have a lovely chat with your parents")
             if self.money < 0:
                 self.money = 0
-                print("Your parents bail you out of your debt.  You feel guilty")
+                messages.append("Your parents bail you out of your debt.  You feel guilty")
         elif recipient in CALL_DICT["friend"]:
             if self.get_mood() < 20:
-                print("Your friend notices how rough you're feeling and is worried")
+                messages.append("Your friend notices how rough you're feeling and is worried")
             elif self.get_mood() < 50:
-                print("Your friend notices you're not very happy and tries to cheer you up")
+                messages.append("Your friend notices you're not very happy and tries to cheer you up")
             else:
-                print("You have a lovely chat with a friend")
+                messages.append("You have a lovely chat with a friend")
         elif recipient in CALL_DICT["hospital"]:
             if self.disease_stage == DEPRESSION3:
-                print("You are admitted to the hospital")
+                messages.append("You are admitted to the hospital")
             else:
-                print("You are turned away.  Try 'call doctor'")
+                messages.append("You are turned away.  Try 'call doctor'")
         elif recipient in CALL_DICT["doctor"]:
             if self.disease_stage == DEPRESSION3:
-                print("The doctor gets you admitted to the hospital")
+                messages.append("The doctor gets you admitted to the hospital")
             elif self.disease_stage == DEPRESSION2:
-                print("The doctor puts you on medication")
+                messages.append("The doctor puts you on medication")
             elif self.disease_stage == DEPRESSION1:
-                print("Your symptoms have not been going on long enough.  Please come back in a week")
+                messages.append("Your symptoms have not been going on long enough.  Please come back in a week")
             elif self.disease_stage == NORMAL:
-                print("You seem to be in fine health")
+                messages.append("You seem to be in fine health")
         elif recipient in CALL_DICT["helpline"]:
-            print("The helpline details resources available to you.  Try 'call psychologist', 'call doctor', or 'call hospital'")
+            messages.append("The helpline details resources available to you.  Try 'call psychologist', 'call doctor', or 'call hospital'")
         elif recipient in CALL_DICT["psychologist"]:
             if self.disease_stage == DEPRESSION3:
-                print("The psychologist gets you admitted to the hospital")
+                messages.append("The psychologist gets you admitted to the hospital")
             elif self.disease_stage == DEPRESSION2:
-                print("The psychologist recommends you see a doctor ('call doctor'), eat, sleep, exercise, and stay social")
+                messages.append("The psychologist recommends you see a doctor ('call doctor'), eat, sleep, exercise, and stay social")
             elif self.disease_stage == DEPRESSION1:
-                print("The pyschologist recommends you make sure you are eating, sleeping, exercising and staying social")
+                messages.append("The pyschologist recommends you make sure you are eating, sleeping, exercising and staying social")
             elif self.disease_stage == NORMAL:
-                print("They psychologist patiently listens to your problems")
-        self.add_hours(1)
+                messages.append("They psychologist patiently listens to your problems")
+        return messages
 
 class Sdabto_Cmd(cmd.Cmd):
     intro = '''Welcome to Some Days Are Better Than Others
@@ -337,8 +349,10 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if self.character.last_meal < 4 or random.random() < self.character.disease_stage["EAT_FAILURE"]:
             print("You're not hungry right now")
             return
+        messages = self.character.eat()
         print("You eat a meal.  You now have " + str(self.character.groceries) + " meals left")
-        self.character.eat()
+        for message in messages:
+            print(message)
 
     def do_work(self, arg):
         '''Work to gain money.  Please supply a number of hours, as in 'work 4' '''
@@ -355,8 +369,10 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if hours > 8:
             print("After 8 hours your mind starts to wander...")
             hours = 8
+        messages = self.character.work(hours)
         print("You go to your computer and work.  You now have $" + str(self.character.money))
-        self.character.work(hours)
+        for message in messages:
+            print(message)
 
     def do_sleep(self, arg):
         '''Sleep to get your energy back.  Please supply a number of hours, as in 'sleep 8' '''
@@ -366,14 +382,16 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if hours > 12:
             print("After 12 hours you wake up.")
             hours = 12
+        messages = self.character.sleep(hours)
         print("You sleep for " + str(hours) + " hours.  Your energy is now " + str(self.character.get_energy()))
-        self.character.sleep(hours)
         if self.character.disease_stage["WAKEUP_DELAY"] > 0:
             hour_str = " hours"
             if self.character.disease_stage["WAKEUP_DELAY"] == 1:
                 hour_str = " hour"
             print("You stay in bed for " + str(self.character.disease_stage["WAKEUP_DELAY"]) + hour_str)
             self.character.add_hours(self.character.disease_stage["WAKEUP_DELAY"])
+        for message in messages:
+            print(message)
 
     def do_exercise(self, arg):
         '''Go for a run'''
@@ -381,7 +399,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             print("Contemplating a run makes you feel exhausted.  Maybe tomorrow...")
             return
         print("You go for a run")
-        self.character.exercise()
+        for message in self.character.exercise():
+            print(message)
 
     def do_shop(self, arg):
         '''Buy more groceries'''
@@ -395,7 +414,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             print("Your fridge is too full for more groceries")
         else:
             print("You buy another week of groceries")
-            self.character.shopping()
+            for message in self.character.shopping():
+                print(message)
 
     def do_game(self, arg):
         '''Play video games.  Please supply a number of hours, as in 'game 1' '''
@@ -405,8 +425,10 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if hours > 8:
             print("After 8 hours you lose interest")
             hours = 8
+        messages = self.character.game(hours)
         print("You play on your computer.  Your mood is now " + str(self.character.get_mood()))
-        self.character.game(hours)
+        for message in messages:
+            print(message)
 
     def do_socialize(self, arg):
         '''Go out with friends.  Please supply a number of hours, as in 'socialize 2' '''
@@ -422,8 +444,10 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if hours > 6:
             print("None of your friends are free for more than 6 hours")
             hours = 6
+        messages = self.character.socialize(hours)
         print("You hang out with friends.  You now have $" + str(self.character.money))
-        self.character.socialize(hours)
+        for message in messages:
+            print(message)
 
     def do_call(self, arg):
         '''Call someone on the phone, as in 'call mom' '''
@@ -435,7 +459,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if not caller_known:
             print("Sorry, recipient unknown")
             return
-        self.character.call(arg)
+        for message in self.character.call(arg):
+            print(message)
 
 
 def main():
