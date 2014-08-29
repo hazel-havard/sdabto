@@ -46,6 +46,17 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "EAT_FAILURE": 0.5,\
         "WORK_FAILURE": 0,\
         "WAKEUP_DELAY": 0,}
+DEPRESSION_MEDICATED = {"INTRO_MESSAGE": "You can feel things again",\
+        "LENGTH": 3,\
+        "NEXT_STAGE": MANIA,\
+        "CAP": 80,\
+        "HUNGER_DELAY": 2,\
+        "THOUGHTS": NORMAL_THOUGHTS,\
+        "THOUGHT_FREQ": 2/24,\
+        "SOCIALIZE_FAILURE": 0.1,\
+        "EAT_FAILURE": 0,\
+        "WORK_FAILURE": 0.2,\
+        "WAKEUP_DELAY": 1,}
 DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "LENGTH": 2,\
         "NEXT_STAGE": None,\
@@ -128,6 +139,11 @@ class Character:
         elif self.base_energy > self.disease_stage["CAP"]:
             self.base_energy = self.disease_stage["CAP"]
 
+    def change_stage(self, stage):
+        self.disease_stage = stage
+        self.disease_days = 0
+        return self.disease_stage["INTRO_MESSAGE"]
+
     def add_hours(self, hours):
         messages = []
         #if we crossed a day boundary
@@ -150,9 +166,7 @@ class Character:
                     self.hours_gamed = 0
                     self.hours_socialized = 0
                     self.hours_played = self.hours_played + (24 * 30 * 6)
-                self.disease_stage = self.disease_stage["NEXT_STAGE"]
-                self.disease_days = 0
-                messages.append(self.disease_stage["INTRO_MESSAGE"])
+                messages.append(self.change_stage(self.disease_stage["NEXT_STAGE"]))
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money = self.money - RENT
                 messages.append("Rent deducted.  You now have $" + str(self.money))
@@ -280,6 +294,7 @@ class Character:
                 messages.append("The doctor gets you admitted to the hospital")
             elif self.disease_stage == DEPRESSION2:
                 messages.append("The doctor puts you on medication")
+                messages.append(self.change_stage(DEPRESSION_MEDICATED))
             elif self.disease_stage == DEPRESSION1:
                 messages.append("Your symptoms have not been going on long enough.  Please come back in a week")
             elif self.disease_stage == NORMAL:
