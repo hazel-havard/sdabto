@@ -30,7 +30,22 @@ SUICIDAL_IDEATION_MAJOR = ["You look up the LD50 of advil and figure out how muc
 SUICIDAL_IDEATION_EXTREME = ["You hold a pillow over your head until you pass out to see what suffocating is like,"\
         "You summon the strength to buy a lethal dose of advil",\
         "You pack your things so they will be easier to take care of when you're gone"]
+MANIC_THOUGHTS = ["You plan a cross-country rail trip",
+        "You decide to landscape your back yard",
+        "You decide to learn to play an instrument"]
 #disease stages
+MANIA = {"INTRO_MESSAGE": "You feel good",\
+        "LENGTH": 7,\
+        #for now.  Will change to medicated depression when it is added
+        "NEXT_STAGE": None,\
+        "CAP": 200,\
+        "HUNGER_DELAY": 12,\
+        "THOUGHTS": MANIC_THOUGHTS,\
+        "THOUGHT_FREQ": 12/24,\
+        "SOCIALIZE_FAILIURE": 0,\
+        "EAT_FAILURE": 0.5,\
+        "WORK_FAILURE": 0,\
+        "WAKEUP_DELAY": 0,}
 DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "LENGTH": 2,\
         "NEXT_STAGE": None,\
