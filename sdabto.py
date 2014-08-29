@@ -40,6 +40,7 @@ DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "THOUGHT_FREQ": 1,\
         "SOCIALIZE_FAILURE": 1,\
         "EAT_FAILURE": 0.5,\
+        "WORK_FAILURE": 1,\
         "WAKEUP_DELAY": 4}
 DEPRESSION2 = {"INTRO_MESSAGE": "You feel rough",\
         "LENGTH": 7,\
@@ -50,6 +51,7 @@ DEPRESSION2 = {"INTRO_MESSAGE": "You feel rough",\
         "THOUGHT_FREQ": 12/24,\
         "SOCIALIZE_FAILURE": 0.8,\
         "EAT_FAILURE": 0.1,\
+        "WORK_FAILURE": 0.5,\
         "WAKEUP_DELAY": 2}
 DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
         "LENGTH": 7,\
@@ -60,6 +62,7 @@ DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
         "THOUGHT_FREQ": 1/24,\
         "SOCIALIZE_FAILURE": 0.2,\
         "EAT_FAILURE": 0,\
+        "WORK_FAILURE": 0.1,\
         "WAKEUP_DELAY": 1}
 NORMAL = {"INTRO_MESSAGE": None,\
         "LENGTH": 7,\
@@ -70,6 +73,7 @@ NORMAL = {"INTRO_MESSAGE": None,\
         "THOUGHT_FREQ": 1/24,\
         "SOCIALIZE_FAILURE": 0,\
         "EAT_FAILURE": 0,\
+        "WORK_FAILURE": 0,\
         "WAKEUP_DELAY": 0}
 
 class Character:
@@ -338,6 +342,10 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
 
     def do_work(self, arg):
         '''Work to gain money.  Please supply a number of hours, as in 'work 4' '''
+        if random.random() < self.character.disease_stage["WORK_FAILURE"]:
+            print("You sit down to work but end up playing video games instead")
+            self.do_game(hours)
+            return
         if self.character.get_energy() < 20:
             print("You try to work but your eyes can't focus on the screen.")
             return
