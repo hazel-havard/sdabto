@@ -368,11 +368,6 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +\
                 " Energy: " + str(energy) + " Money: $" + str(self.character.money) +\
                 " Food: " + str(self.character.groceries) + " meals")
-        #for debugging
-        print("last_meal: "  + str(self.character.last_meal))
-        print("last_sleep: "  + str(self.character.last_sleep))
-        print("last_exercise: "  + str(self.character.last_exercise))
-        print("last_social: "  + str(self.character.last_social))
 
     def do_eat(self, arg):
         '''Eat a meal'''
