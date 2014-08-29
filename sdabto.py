@@ -39,6 +39,7 @@ DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "THOUGHTS": SUICIDAL_IDEATION_EXTREME,\
         "THOUGHT_FREQ": 1,\
         "SOCIALIZE_FAILURE": 1,\
+        "EAT_FAILURE": 0.5,\
         "WAKEUP_DELAY": 4}
 DEPRESSION2 = {"INTRO_MESSAGE": "You feel rough",\
         "LENGTH": 7,\
@@ -48,6 +49,7 @@ DEPRESSION2 = {"INTRO_MESSAGE": "You feel rough",\
         "THOUGHTS": SUICIDAL_IDEATION_MAJOR,\
         "THOUGHT_FREQ": 12/24,\
         "SOCIALIZE_FAILURE": 0.8,\
+        "EAT_FAILURE": 0.1,\
         "WAKEUP_DELAY": 2}
 DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
         "LENGTH": 7,\
@@ -57,6 +59,7 @@ DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
         "THOUGHTS": SUICIDAL_IDEATION_MINOR,\
         "THOUGHT_FREQ": 1/24,\
         "SOCIALIZE_FAILURE": 0.2,\
+        "EAT_FAILURE": 0,\
         "WAKEUP_DELAY": 1}
 NORMAL = {"INTRO_MESSAGE": None,\
         "LENGTH": 7,\
@@ -66,6 +69,7 @@ NORMAL = {"INTRO_MESSAGE": None,\
         "THOUGHTS": NORMAL_THOUGHTS,\
         "THOUGHT_FREQ": 1/24,\
         "SOCIALIZE_FAILURE": 0,\
+        "EAT_FAILURE": 0,\
         "WAKEUP_DELAY": 0}
 
 class Character:
@@ -326,7 +330,7 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
 
     def do_eat(self, arg):
         '''Eat a meal'''
-        if self.character.last_meal < 4:
+        if self.character.last_meal < 4 or random.random() < self.character.disease_stage["EAT_FAILURE"]:
             print("You're not hungry right now")
             return
         print("You eat a meal.  You now have " + str(self.character.groceries) + " meals left")
