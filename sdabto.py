@@ -333,6 +333,13 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             print("You have died.  Game over")
             return True
         if not stop:
+            mood = self.character.get_mood()
+            energy = self.character.get_energy()
+            day = (self.character.hours_played // 24) + 1
+            hour = self.character.hours_played % 24
+            print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +\
+                    " Energy: " + str(energy) + " Money: $" + str(self.character.money) +\
+                    " Food: " + str(self.character.groceries) + " meals")
             if self.character.last_meal > MEAL_INTERVAL + self.character.disease_stage["HUNGER_DELAY"]:
                 print("You feel hungry")
             if self.character.last_sleep > SLEEP_INTERVAL:
@@ -358,16 +365,6 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
     def do_quit(self, arg):
         '''Exit the program'''
         return True
-
-    def do_status(self, arg):
-        '''Return your vital statistics'''
-        mood = self.character.get_mood()
-        energy = self.character.get_energy()
-        day = (self.character.hours_played // 24) + 1
-        hour = self.character.hours_played % 24
-        print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +\
-                " Energy: " + str(energy) + " Money: $" + str(self.character.money) +\
-                " Food: " + str(self.character.groceries) + " meals")
 
     def do_eat(self, arg):
         '''Eat a meal'''
