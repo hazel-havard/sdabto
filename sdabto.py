@@ -154,14 +154,14 @@ class Character:
         self.dead = False
 
     def change_mood(self, diff):
-        self.base_mood = self.base_mood + diff
+        self.base_mood += diff
         if self.base_mood < 0:
             self.base_mood = 0
         elif self.base_mood > self.disease_stage["CAP"]:
             self.base_mood = self.disease_stage["CAP"]
 
     def change_energy(self, diff):
-        self.base_energy = self.base_energy + diff
+        self.base_energy += diff
         if self.base_energy < 0:
             self.base_energy = 0
         elif self.base_energy > self.disease_stage["CAP"]:
@@ -178,9 +178,9 @@ class Character:
         if (self.hours_played // 24) < ((self.hours_played + hours) // 24):
             self.hours_gamed = 0
             self.hours_socialized = 0
-            self.last_exercise = self.last_exercise + 1
-            self.last_social = self.last_social + 1
-            self.disease_days = self.disease_days + 1
+            self.last_exercise += 1
+            self.last_social += 1
+            self.disease_days += 1
             if self.disease_days >= self.disease_stage["LENGTH"]:
                 if "NEXT_STAGE" not in self.disease_stage:
                     self.dead = True
@@ -193,14 +193,14 @@ class Character:
                     self.last_social = 7
                     self.hours_gamed = 0
                     self.hours_socialized = 0
-                    self.hours_played = self.hours_played + (24 * 30 * 6)
+                    self.hours_played += (24 * 30 * 6)
                 messages.append(self.change_stage(self.disease_stage["NEXT_STAGE"]))
             if ((self.hours_played + hours) // 24) % 7 == 0:
-                self.money = self.money - RENT
+                self.money -= RENT
                 messages.append("Rent deducted.  You now have $" + str(self.money))
-        self.last_meal = self.last_meal + hours
-        self.last_sleep = self.last_sleep + hours
-        self.hours_played = self.hours_played + hours
+        self.last_meal += hours
+        self.last_sleep += hours
+        self.hours_played += hours
         if random.random() < self.disease_stage["THOUGHT_FREQ"] * hours:
             messages.append(random.choice(self.disease_stage["THOUGHTS"]))
         if self.last_meal > 24 * 7:
@@ -211,11 +211,11 @@ class Character:
     def get_mood(self):
         mood = self.base_mood
         if self.last_meal > MEAL_INTERVAL:
-            mood = mood - min(10 * (self.last_meal - MEAL_INTERVAL), 30)
+            mood -= min(10 * (self.last_meal - MEAL_INTERVAL), 30)
         if self.last_exercise > EXERCISE_INTERVAL:
-            mood = mood - min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
+            mood -= min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
         if self.last_social > SOCIAL_INTERVAL:
-            mood = mood - min(5 * (self.last_social - SOCIAL_INTERVAL), 20)
+            mood -= min(5 * (self.last_social - SOCIAL_INTERVAL), 20)
         if mood < 0:
             mood = 0
         elif mood > self.disease_stage["CAP"]:
@@ -225,11 +225,11 @@ class Character:
     def get_energy(self):
         energy = self.base_energy
         if self.last_meal > MEAL_INTERVAL:
-            energy = energy - min(10 * (self.last_meal - MEAL_INTERVAL), 30)
+            energy -= min(10 * (self.last_meal - MEAL_INTERVAL), 30)
         if self.last_sleep > SLEEP_INTERVAL:
-            energy = energy - min(5 * (self.last_sleep - SLEEP_INTERVAL), 20)
+            energy -= min(5 * (self.last_sleep - SLEEP_INTERVAL), 20)
         if self.last_exercise > EXERCISE_INTERVAL:
-            energy = energy - min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
+            energy -= min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
         if energy < 0:
             energy = 0
         elif energy > self.disease_stage["CAP"]:
@@ -240,8 +240,8 @@ class Character:
         messages = self.add_hours(hours)
         wages = 10 * hours
         if "WAGE_MULTIPLIER" in self.disease_stage:
-            wages = wages * self.disease_stage["WAGE_MULTIPLIER"]
-        self.money = self.money + wages
+            wages *= self.disease_stage["WAGE_MULTIPLIER"]
+        self.money += wages
         self.change_energy(-5 * hours)
         self.change_mood(-5 * hours)
         return messages
@@ -261,7 +261,7 @@ class Character:
     def eat(self):
         messages = self.add_hours(1)
         self.last_meal = 0
-        self.groceries = self.groceries - 1
+        self.groceries -= 1
         return messages
 
     def exercise(self):
@@ -273,8 +273,8 @@ class Character:
 
     def shopping(self):
         messages = self.add_hours(1)
-        self.money = self.money - GROCERIES
-        self.groceries = self.groceries + 21
+        self.money -= GROCERIES
+        self.groceries += 21
         if self.groceries > 42:
             self.groceries = 42
         return messages
@@ -282,16 +282,16 @@ class Character:
     def game(self, hours):
         messages = self.add_hours(hours)
         hours = max(0, min(hours, 4 - self.hours_gamed))
-        self.hours_gamed = self.hours_gamed + hours
+        self.hours_gamed += hours
         self.change_mood(5 * hours)
         return messages
 
     def socialize(self, hours):
         messages = self.add_hours(hours)
-        self.money = self.money - 10 * hours
+        self.money -= 10 * hours
         self.change_energy(-5 * hours)
         hours = max(0, min(hours, 3 - self.hours_socialized))
-        self.hours_socialized = self.hours_socialized + hours
+        self.hours_socialized += hours
         mood_bonus = 10 * hours
         if "SOCIALIZING_MULTIPLIER" in self.disease_stage:
             mood_bonus *= self.disease_stage["SOCIALIZING_MULTIPLIER"]
@@ -410,7 +410,7 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
                     " Food: " + str(self.character.groceries) + " meals")
             hunger_time = MEAL_INTERVAL
             if "HUNGER_DELAY" in self.character.disease_stage:
-                hunger_time = hunger_time + self.character.disease_stage["HUNGER_DELAY"]
+                hunger_time += self.character.disease_stage["HUNGER_DELAY"]
             if self.character.last_meal > hunger_time:
                 print("You feel hungry")
             if self.character.last_sleep > SLEEP_INTERVAL:
