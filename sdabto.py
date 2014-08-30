@@ -49,7 +49,7 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "EAT_FAILURE": 0.5,\
         "WORK_FAILURE": 0,\
         "WAKEUP_DELAY": 0,}
-DEPRESSION_MEDICATED = {"INTRO_MESSAGE": "You can feel things again",\
+INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 3,\
         "NEXT_STAGE": MANIA,\
         "CAP": 80,\
@@ -62,7 +62,7 @@ DEPRESSION_MEDICATED = {"INTRO_MESSAGE": "You can feel things again",\
         "WAKEUP_DELAY": 1,}
 HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe",\
         "LENGTH": 3,\
-        "NEXT_STAGE": DEPRESSION_MEDICATED,\
+        "NEXT_STAGE": INITIAL_MEDICATION,\
         "CAP": 60,\
         "HUNGER_DELAY": 2,\
         "THOUGHTS": HOSPITAL_THOUGHTS,\
@@ -310,7 +310,7 @@ class Character:
                 self.append(self.change_stage(HOSPITALIZED))
             elif self.disease_stage == DEPRESSION2:
                 messages.append("The doctor puts you on medication")
-                messages.append(self.change_stage(DEPRESSION_MEDICATED))
+                messages.append(self.change_stage(INITIAL_MEDICATION))
             elif self.disease_stage == DEPRESSION1:
                 messages.append("Your symptoms have not been going on long enough.  Please come back in a week")
             elif self.disease_stage == NORMAL:
