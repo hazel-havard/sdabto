@@ -66,13 +66,15 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "HUNGER_DELAY": 12,\
         "THOUGHTS": MANIC_THOUGHTS,\
         "THOUGHT_FREQ": 12/24,\
-        "EAT_FAILURE": 0.5,
-        "WAGE_MULTIPLIER": 2,
-        "FOCUS_CHANCE": 0.5,
-        "LOSS_OF_CONTROL_CHANCE": 0.2,
-        "ACTIVITIES": ["SHOPPING", "DRIVING", "ART", "MUSIC"],
-        "SOCIALIZING_EFFECTS": ["DRUNK", "INAPPROPRIATE", "PROMISCUOUS"],
-        "SOCIALIZING_MULTIPLIER": 2}
+        "EAT_FAILURE": 0.5,\
+        "WAGE_MULTIPLIER": 2,\
+        "FOCUS_CHANCE": 0.5,\
+        "LOSS_OF_CONTROL_CHANCE": 0.2,\
+        "ACTIVITIES": ["SHOPPING", "DRIVING", "ART", "MUSIC"],\
+        "SOCIALIZING_EFFECTS": ["DRUNK", "INAPPROPRIATE", "PROMISCUOUS"],\
+        "SOCIALIZING_MULTIPLIER": 2,\
+        "SLEEP_CAP": 4,\
+        "SLEEP_ENERGY": 200}
 INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 3,\
         "NEXT_STAGE": MANIA,\
@@ -253,6 +255,9 @@ class Character:
         if hours > 8:
             hours = 8
         self.last_sleep = 0
+        if "SLEEP_ENERGY" in self.disease_stage:
+            self.base_energy = min(self.disease_stage["SLEEP_ENERGY"], self.disease_stage["CAP"])
+            return messages
         self.base_energy = min((10 * hours), self.disease_stage["CAP"])
         if hours > 6:
             self.change_energy(20)
@@ -479,6 +484,10 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         hours = self.sanitize(arg)
         if hours is None:
             return
+        if "SLEEP_CAP" in self.character.disease_stage:
+            if hours > self.character.disease_stage["SLEEP_CAP"]:
+                print("You can't sleep.  You wake up early feeling fully rested")
+                hours = self.character.disease_stage["SLEEP_CAP"]
         if hours > 12:
             print("After 12 hours you wake up.")
             hours = 12
