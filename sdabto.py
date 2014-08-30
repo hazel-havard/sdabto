@@ -71,7 +71,8 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "FOCUS_CHANCE": 0.5,
         "LOSS_OF_CONTROL_CHANCE": 0.2,
         "ACTIVITIES": ["SHOPPING", "DRIVING", "ART", "MUSIC"],
-        "SOCIALIZING_EFFECTS": ["DRUNK", "INAPPROPRIATE", "PROMISCUOUS"]}
+        "SOCIALIZING_EFFECTS": ["DRUNK", "INAPPROPRIATE", "PROMISCUOUS"],
+        "SOCIALIZING_MULTIPLIER": 2}
 INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 3,\
         "NEXT_STAGE": MANIA,\
@@ -291,7 +292,10 @@ class Character:
         self.change_energy(-5 * hours)
         hours = max(0, min(hours, 3 - self.hours_socialized))
         self.hours_socialized = self.hours_socialized + hours
-        self.change_mood(10 * hours)
+        mood_bonus = 10 * hours
+        if "SOCIALIZING_MULTIPLIER" in self.disease_stage:
+            mood_bonus *= self.disease_stage["SOCIALIZING_MULTIPLIER"]
+        self.change_mood(mood_bonus)
         self.last_social = 0
         return messages
 
