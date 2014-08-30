@@ -37,18 +37,14 @@ HOSPITAL_THOUGHTS = ["You feel bored but safe",\
         "Everyone else in here seems crazy",\
         "You wonder why you don't miss home"]
 #disease stages
+#Must have LENGTH, CAP, THOUGHTS, & THOUGHT_FREQ
 MEDICATED_DEPRESSION = {}
 MEDICATED = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 21,\
         "NEXT_STAGE": MEDICATED_DEPRESSION,\
         "CAP": 100,\
-        "HUNGER_DELAY": 0,\
         "THOUGHTS": NORMAL_THOUGHTS,\
-        "THOUGHT_FREQ": 1/24,\
-        "SOCIALIZE_FAILURE": 0,\
-        "EAT_FAILURE": 0,\
-        "WORK_FAILURE": 0,\
-        "WAKEUP_DELAY": 0}
+        "THOUGHT_FREQ": 1/24}
 MEDICATED_DEPRESSION = {"INTRO_MESSAGE": "You feel rough",\
         "LENGTH": 7,\
         "NEXT_STAGE": MEDICATED,\
@@ -56,7 +52,7 @@ MEDICATED_DEPRESSION = {"INTRO_MESSAGE": "You feel rough",\
         "HUNGER_DELAY": 4,\
         "THOUGHTS": SUICIDAL_IDEATION_MINOR,\
         "THOUGHT_FREQ": 4/24,\
-        "SOCIALIZE_FAILIURE": 0.5,\
+        "SOCIALIZE_FAILURE": 0.5,\
         "EAT_FAILURE": 0.2,\
         "WORK_FAILURE": 0.5,\
         "WAKEUP_DELAY": 2,}
@@ -67,10 +63,7 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "HUNGER_DELAY": 12,\
         "THOUGHTS": MANIC_THOUGHTS,\
         "THOUGHT_FREQ": 12/24,\
-        "SOCIALIZE_FAILIURE": 0,\
-        "EAT_FAILURE": 0.5,\
-        "WORK_FAILURE": 0,\
-        "WAKEUP_DELAY": 0,}
+        "EAT_FAILURE": 0.5}
 INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 3,\
         "NEXT_STAGE": MANIA,\
@@ -79,7 +72,6 @@ INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "THOUGHTS": NORMAL_THOUGHTS,\
         "THOUGHT_FREQ": 2/24,\
         "SOCIALIZE_FAILURE": 0.1,\
-        "EAT_FAILURE": 0,\
         "WORK_FAILURE": 0.2,\
         "WAKEUP_DELAY": 1,}
 HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe",\
@@ -90,12 +82,9 @@ HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe"
         "THOUGHTS": HOSPITAL_THOUGHTS,\
         "THOUGHT_FREQ": 4/24,\
         "SOCIALIZE_FAILURE": 1,\
-        "EAT_FAILURE": 0,\
-        "WORK_FAILURE": 1,\
-        "WAKEUP_DELAY": 0}
+        "WORK_FAILURE": 1}
 DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "LENGTH": 2,\
-        "NEXT_STAGE": None,\
         "CAP": 10,\
         "HUNGER_DELAY": 24,\
         "THOUGHTS": SUICIDAL_IDEATION_EXTREME,\
@@ -126,17 +115,11 @@ DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
         "EAT_FAILURE": 0,\
         "WORK_FAILURE": 0.1,\
         "WAKEUP_DELAY": 1}
-NORMAL = {"INTRO_MESSAGE": None,\
-        "LENGTH": 7,\
+NORMAL = {"LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION1,\
         "CAP": 100,\
-        "HUNGER_DELAY": 0,\
         "THOUGHTS": NORMAL_THOUGHTS,\
-        "THOUGHT_FREQ": 1/24,\
-        "SOCIALIZE_FAILURE": 0,\
-        "EAT_FAILURE": 0,\
-        "WORK_FAILURE": 0,\
-        "WAKEUP_DELAY": 0}
+        "THOUGHT_FREQ": 1/24}
 
 class Character:
     def __init__(self):
@@ -190,7 +173,7 @@ class Character:
             self.last_social = self.last_social + 1
             self.disease_days = self.disease_days + 1
             if self.disease_days >= self.disease_stage["LENGTH"]:
-                if self.disease_stage["NEXT_STAGE"] is None:
+                if "NEXT_STAGE" not in self.disease_stage:
                     self.dead = True
                     messages.append("You have committed suicide")
                     return messages
@@ -379,7 +362,10 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +\
                     " Energy: " + str(energy) + " Money: $" + str(self.character.money) +\
                     " Food: " + str(self.character.groceries) + " meals")
-            if self.character.last_meal > MEAL_INTERVAL + self.character.disease_stage["HUNGER_DELAY"]:
+            hunger_time = MEAL_INTERVAL
+            if "HUNGER_DELAY" in self.character.disease_stage:
+                hunger_time = hunger_time + self.character.disease_stage["HUNGER_DELAY"]
+            if self.character.last_meal > hunger_time:
                 print("You feel hungry")
             if self.character.last_sleep > SLEEP_INTERVAL:
                 print("You feel sleepy")
@@ -407,7 +393,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
 
     def do_eat(self, arg):
         '''Eat a meal'''
-        if self.character.last_meal < 4 or random.random() < self.character.disease_stage["EAT_FAILURE"]:
+        if self.character.last_meal < 4 or \
+                ("EAT_FAILURE" in self.character.disease_stage and \
+                random.random() < self.character.disease_stage["EAT_FAILURE"]):
             print("You're not hungry right now")
             return
         messages = self.character.eat()
@@ -417,7 +405,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
 
     def do_work(self, arg):
         '''Work to gain money.  Please supply a number of hours, as in 'work 4' '''
-        if random.random() < self.character.disease_stage["WORK_FAILURE"]:
+        if "WORK_FAILURE" in self.character.disease_stage and \
+                random.random() < self.character.disease_stage["WORK_FAILURE"]:
             print("You sit down to work but end up playing video games instead")
             self.do_game(hours)
             return
@@ -445,7 +434,7 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             hours = 12
         messages = self.character.sleep(hours)
         print("You sleep for " + str(hours) + " hours.  Your energy is now " + str(self.character.get_energy()))
-        if self.character.disease_stage["WAKEUP_DELAY"] > 0:
+        if "WAKEUP_DELAY" in self.character.disease_stage:
             hour_str = " hours"
             if self.character.disease_stage["WAKEUP_DELAY"] == 1:
                 hour_str = " hour"
@@ -496,7 +485,8 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if self.character.get_energy() < 20:
             print("You can't summon the energy to face people right now.  How about a quiet night in?")
             return
-        if random.random() < self.character.disease_stage["SOCIALIZE_FAILURE"]:
+        if "SOCIALIZE_FAILURE" in self.character.disease_stage and \
+                random.random() < self.character.disease_stage["SOCIALIZE_FAILURE"]:
             print("You get too anxious thinking about people right now.  How about a quiet night in?")
             return
         hours = self.sanitize(arg)
