@@ -12,6 +12,7 @@ EXERCISE_INTERVAL = 2 #days
 SOCIAL_INTERVAL = 2 #days
 #Risks of death while out of control
 SPEEDING_RISK = 0.2
+ALCOHOL_POISONING_CHANCE = 0.2
 #list of people you can call
 CALL_DICT = {"parents": ["mom", "mother", "dad", "father", "parents"],\
         "friend": ["friend", "friends"],\
@@ -69,7 +70,8 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "WAGE_MULTIPLIER": 2,
         "FOCUS_CHANCE": 0.5,
         "LOSS_OF_CONTROL_CHANCE": 0.2,
-        "ACTIVITIES": ["SHOPPING", "DRIVING", "ART", "MUSIC"]}
+        "ACTIVITIES": ["SHOPPING", "DRIVING", "ART", "MUSIC"],
+        "SOCIALIZING_EFFECTS": ["DRUNK", "INAPPROPRIATE", "PROMISCUOUS"]}
 INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 3,\
         "NEXT_STAGE": MANIA,\
@@ -531,6 +533,22 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if hours > 6:
             print("None of your friends are free for more than 6 hours")
             hours = 6
+        if "FOCUS_CHANCE" in self.character.disease_stage and \
+                random.random() < self.character.disease_stage["FOCUS_CHANCE"]:
+            print("You lose track of time and stay out for 6 hours")
+            hours = 6
+            effect = random.choice(self.character.disease_stage["SOCIALIZING_EFFECTS"])
+            if effect == "DRUNK":
+                print("You have a drink, and then another and another and another.  You black out")
+                if random.random < ALCOHOL_POISONING_CHANCE:
+                    print("You get severe alcohol poisoning")
+                    self.character.dead = True
+                    return True
+                print("Later your friends, freaked out, tell you you thought you were a character from the last book you read")
+            elif effect == "INAPPROPRIATE":
+                print("You start making more and more inappropriate jokes.  Some people laugh riotously, but an old friend looks disgusted")
+            elif effect == "PROMISCUOUS":
+                print("You hook up with someone you just met")
         messages = self.character.socialize(hours)
         print("You hang out with friends.  You now have $" + str(self.character.money))
         for message in messages:
