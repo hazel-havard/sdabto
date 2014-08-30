@@ -30,9 +30,12 @@ SUICIDAL_IDEATION_MAJOR = ["You look up the LD50 of advil and figure out how muc
 SUICIDAL_IDEATION_EXTREME = ["You hold a pillow over your head until you pass out to see what suffocating is like,"\
         "You summon the strength to buy a lethal dose of advil",\
         "You pack your things so they will be easier to take care of when you're gone"]
-MANIC_THOUGHTS = ["You plan a cross-country rail trip",
-        "You decide to landscape your back yard",
+MANIC_THOUGHTS = ["You plan a cross-country rail trip",\
+        "You decide to landscape your back yard",\
         "You decide to learn to play an instrument"]
+HOSPITAL_THOUGHTS = ["You feel bored but safe",\
+        "Everyone else in here seems crazy",\
+        "You wonder why you don't miss home"]
 #disease stages
 MANIA = {"INTRO_MESSAGE": "You feel good",\
         "LENGTH": 7,\
@@ -57,6 +60,17 @@ DEPRESSION_MEDICATED = {"INTRO_MESSAGE": "You can feel things again",\
         "EAT_FAILURE": 0,\
         "WORK_FAILURE": 0.2,\
         "WAKEUP_DELAY": 1,}
+HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe",\
+        "LENGTH": 3,\
+        "NEXT_STAGE": DEPRESSION_MEDICATED,\
+        "CAP": 60,\
+        "HUNGER_DELAY": 2,\
+        "THOUGHTS": HOSPITAL_THOUGHTS,\
+        "THOUGHT_FREQ": 4/24,\
+        "SOCIALIZE_FAILURE": 1,\
+        "EAT_FAILURE": 0,\
+        "WORK_FAILURE": 1,\
+        "WAKEUP_DELAY": 0}
 DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "LENGTH": 2,\
         "NEXT_STAGE": None,\
@@ -287,11 +301,13 @@ class Character:
         elif recipient in CALL_DICT["hospital"]:
             if self.disease_stage == DEPRESSION3:
                 messages.append("You are admitted to the hospital")
+                self.append(self.change_stage(HOSPITALIZED))
             else:
                 messages.append("You are turned away.  Try 'call doctor'")
         elif recipient in CALL_DICT["doctor"]:
             if self.disease_stage == DEPRESSION3:
                 messages.append("The doctor gets you admitted to the hospital")
+                self.append(self.change_stage(HOSPITALIZED))
             elif self.disease_stage == DEPRESSION2:
                 messages.append("The doctor puts you on medication")
                 messages.append(self.change_stage(DEPRESSION_MEDICATED))
@@ -304,6 +320,7 @@ class Character:
         elif recipient in CALL_DICT["psychologist"]:
             if self.disease_stage == DEPRESSION3:
                 messages.append("The psychologist gets you admitted to the hospital")
+                self.append(self.change_stage(HOSPITALIZED))
             elif self.disease_stage == DEPRESSION2:
                 messages.append("The psychologist recommends you see a doctor ('call doctor'), eat, sleep, exercise, and stay social")
             elif self.disease_stage == DEPRESSION1:
