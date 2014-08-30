@@ -10,6 +10,8 @@ MEAL_INTERVAL = 6 #hours
 SLEEP_INTERVAL = 16 #hours
 EXERCISE_INTERVAL = 2 #days
 SOCIAL_INTERVAL = 2 #days
+#Risks of death while out of control
+SPEEDING_RISK = 0.2
 #list of people you can call
 CALL_DICT = {"parents": ["mom", "mother", "dad", "father", "parents"],\
         "friend": ["friend", "friends"],\
@@ -65,7 +67,9 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "THOUGHT_FREQ": 12/24,\
         "EAT_FAILURE": 0.5,
         "WAGE_MULTIPLIER": 2,
-        "FOCUS_CHANCE": 0.5}
+        "FOCUS_CHANCE": 0.5,
+        "LOSS_OF_CONTROL_CHANCE": 0.2,
+        "ACTIVITIES": ["SHOPPING", "DRIVING", "ART", "MUSIC"]}
 INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 3,\
         "NEXT_STAGE": MANIA,\
@@ -360,6 +364,25 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             print("You have died.  Game over")
             return True
         if not stop:
+            if "LOSS_OF_CONTROL_CHANCE" in self.character.disease_stage and \
+                    random.random() < self.character.disease_stage["LOSS_OF_CONTROL_CHANCE"]:
+                print("You lose control for about 8 hours")
+                messages = self.character.add_hours(8)
+                activity = random.choice(self.character.disease_stage["ACTIVITIES"])
+                if activity == "SHOPPING":
+                    print("You go shopping and spend all of your money on home furnishings")
+                    self.character.money = -200
+                elif activity == "DRIVING":
+                    print("You rent a car and go for a drive.  You find yourself driving much too fast")
+                    if random.random() < SPEEDING_RISK:
+                        print("You get into a terrible car accident.  You and the other driver are both killed")
+                        print("Game over")
+                        self.character.dead = True
+                        return True
+                elif activity == "ART":
+                    print("You start creating a gorgeous calligraphy project")
+                elif activity == "MUSIC":
+                    print("You find yourself thinking in rhymes and start writing songs")
             mood = self.character.get_mood()
             energy = self.character.get_energy()
             day = (self.character.hours_played // 24) + 1
