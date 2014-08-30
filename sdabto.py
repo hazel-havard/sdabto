@@ -63,7 +63,8 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "HUNGER_DELAY": 12,\
         "THOUGHTS": MANIC_THOUGHTS,\
         "THOUGHT_FREQ": 12/24,\
-        "EAT_FAILURE": 0.5}
+        "EAT_FAILURE": 0.5,
+        "WAGE_MULTIPLIER": 2}
 INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 3,\
         "NEXT_STAGE": MANIA,\
@@ -229,7 +230,10 @@ class Character:
 
     def work(self, hours):
         messages = self.add_hours(hours)
-        self.money = self.money + 10 * hours
+        wages = 10 * hours
+        if "WAGE_MULTIPLIER" in self.disease_stage:
+            wages = wages * self.disease_stage["WAGE_MULTIPLIER"]
+        self.money = self.money + wages
         self.change_energy(-5 * hours)
         self.change_mood(-5 * hours)
         return messages
