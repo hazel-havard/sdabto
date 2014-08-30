@@ -367,26 +367,52 @@ class Character:
         return messages
 
 class Sdabto_Cmd(cmd.Cmd):
-    intro = '''Welcome to Some Days Are Better Than Others
-Trigger Warning: Suicide
-Type 'help' or '?' for some suggestions of what to do.\n'''
     prompt = 'What would you like to do? '
 
     def __init__(self, character):
         super(Sdabto_Cmd, self).__init__()
         self.character = character
+        self.bad_command = False
+
+    def print_status(self):
+        mood = self.character.get_mood()
+        energy = self.character.get_energy()
+        day = (self.character.hours_played // 24) + 1
+        hour = self.character.hours_played % 24
+        print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +\
+                " Energy: " + str(energy) + " Money: $" + str(self.character.money) +\
+                " Food: " + str(self.character.groceries) + " meals")
+        hunger_time = MEAL_INTERVAL
+        if "HUNGER_DELAY" in self.character.disease_stage:
+            hunger_time += self.character.disease_stage["HUNGER_DELAY"]
+        if self.character.last_meal > hunger_time:
+            print("You feel hungry")
+        if self.character.last_sleep > SLEEP_INTERVAL:
+            print("You feel sleepy")
+        if self.character.last_exercise > EXERCISE_INTERVAL:
+            print("You feel lethargic")
+        if self.character.last_social > SOCIAL_INTERVAL:
+            print("You feel lonely")
+
+    def preloop(self):
+        print("Welcome to Some Days Are Better Than Others")
+        print("Trigger Warning: Suicide")
+        print("Type 'help' of '?' for some ideas of what to do")
+        print()
+        self.print_status()
 
     def postloop(self):
         print("Goodbye")
 
     def default(self, line):
         print("Sorry, that command is not recognized.  Try 'help' or '?' for suggestions")
+        self.bad_command = True
 
     def postcmd(self, stop, line):
         if self.character.dead:
             print("You have died.  Game over")
             return True
-        if not stop:
+        if not stop and line != "help" and line != "?" and not self.bad_command:
             if "LOSS_OF_CONTROL_CHANCE" in self.character.disease_stage and \
                     random.random() < self.character.disease_stage["LOSS_OF_CONTROL_CHANCE"]:
                 print("You lose control for about 8 hours")
@@ -406,24 +432,9 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
                     print("You start creating a gorgeous calligraphy project")
                 elif activity == "MUSIC":
                     print("You find yourself thinking in rhymes and start writing songs")
-            mood = self.character.get_mood()
-            energy = self.character.get_energy()
-            day = (self.character.hours_played // 24) + 1
-            hour = self.character.hours_played % 24
-            print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +\
-                    " Energy: " + str(energy) + " Money: $" + str(self.character.money) +\
-                    " Food: " + str(self.character.groceries) + " meals")
-            hunger_time = MEAL_INTERVAL
-            if "HUNGER_DELAY" in self.character.disease_stage:
-                hunger_time += self.character.disease_stage["HUNGER_DELAY"]
-            if self.character.last_meal > hunger_time:
-                print("You feel hungry")
-            if self.character.last_sleep > SLEEP_INTERVAL:
-                print("You feel sleepy")
-            if self.character.last_exercise > EXERCISE_INTERVAL:
-                print("You feel lethargic")
-            if self.character.last_social > SOCIAL_INTERVAL:
-                print("You feel lonely")
+            self.print_status()
+            print()
+        self.bad_command = False
         return stop
 
     def sanitize(self, arg):
