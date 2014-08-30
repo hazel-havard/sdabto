@@ -37,9 +37,21 @@ HOSPITAL_THOUGHTS = ["You feel bored but safe",\
         "Everyone else in here seems crazy",\
         "You wonder why you don't miss home"]
 #disease stages
+MEDICATED_DEPRESSION = {}
+MEDICATED = {"INTRO_MESSAGE": "You can feel things again",\
+        "LENGTH": 21,\
+        "NEXT_STAGE": MEDICATED_DEPRESSION,\
+        "CAP": 100,\
+        "HUNGER_DELAY": 0,\
+        "THOUGHTS": NORMAL_THOUGHTS,\
+        "THOUGHT_FREQ": 1/24,\
+        "SOCIALIZE_FAILURE": 0,\
+        "EAT_FAILURE": 0,\
+        "WORK_FAILURE": 0,\
+        "WAKEUP_DELAY": 0}
 MEDICATED_DEPRESSION = {"INTRO_MESSAGE": "You feel rough",\
         "LENGTH": 7,\
-        "NEXT_STAGE": None,\
+        "NEXT_STAGE": MEDICATED,\
         "CAP": 50,\
         "HUNGER_DELAY": 4,\
         "THOUGHTS": SUICIDAL_IDEATION_MINOR,\
