@@ -64,7 +64,8 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "THOUGHTS": MANIC_THOUGHTS,\
         "THOUGHT_FREQ": 12/24,\
         "EAT_FAILURE": 0.5,
-        "WAGE_MULTIPLIER": 2}
+        "WAGE_MULTIPLIER": 2,
+        "FOCUS_CHANCE": 0.5}
 INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 3,\
         "NEXT_STAGE": MANIA,\
@@ -423,6 +424,10 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
         if hours > 8:
             print("After 8 hours your mind starts to wander...")
             hours = 8
+        if "FOCUS_CHANCE" in self.character.disease_stage and \
+                random.random() < self.character.disease_stage["FOCUS_CHANCE"]:
+            print("You get in the zone and loose track of time.  You work for 8 hours")
+            hours = 8
         messages = self.character.work(hours)
         print("You go to your computer and work.  You now have $" + str(self.character.money))
         for message in messages:
@@ -478,6 +483,10 @@ Type 'help' or '?' for some suggestions of what to do.\n'''
             return
         if hours > 8:
             print("After 8 hours you lose interest")
+            hours = 8
+        if "FOCUS_CHANCE" in self.character.disease_stage and \
+                random.random() < self.character.disease_stage["FOCUS_CHANCE"]:
+            print("You get in the zone and loose track of time.  You game for 8 hours")
             hours = 8
         messages = self.character.game(hours)
         print("You play on your computer.  Your mood is now " + str(self.character.get_mood()))
