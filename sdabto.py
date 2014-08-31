@@ -88,6 +88,7 @@ INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "WORK_FAILURE": 0.2,\
         "WAKEUP_DELAY": 1,}
 HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe",\
+        "EXIT_MESSAGE": "You are discharged.  You don't feel ready",\
         "LENGTH": 1,\
         "TIME_WARP": 1,\
         "NEXT_STAGE": INITIAL_MEDICATION,\
@@ -185,6 +186,8 @@ class Character:
             self.hours_gamed = 0
             self.hours_socialized = 0
             self.hours_played += (24 * 30 * self.disease_stage["TIME_WARP"])
+        if "EXIT_MESSAGE" in self.disease_stage:
+            messages.append(self.disease_stage["EXIT_MESSAGE"])
         self.disease_stage = stage
         self.change_energy(0)
         self.change_mood(0)
@@ -261,7 +264,7 @@ class Character:
     def sleep(self, hours):
         messages = self.add_hours(hours)
         if hours < 4:
-            return
+            return messages
         if hours > 8:
             hours = 8
         self.last_sleep = 0
@@ -601,7 +604,7 @@ class Sdabto_Cmd(cmd.Cmd):
             effect = random.choice(self.character.disease_stage["SOCIALIZING_EFFECTS"])
             if effect == "DRUNK":
                 print("You have a drink, and then another and another and another.  You black out")
-                if random.random < ALCOHOL_POISONING_CHANCE:
+                if random.random() < ALCOHOL_POISONING_CHANCE:
                     print("You get severe alcohol poisoning")
                     self.character.dead = True
                     return True
