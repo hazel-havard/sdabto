@@ -88,7 +88,7 @@ INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "WORK_FAILURE": 0.2,\
         "WAKEUP_DELAY": 1,}
 HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe",\
-        "LENGTH": 3,\
+        "LENGTH": 1,\
         "TIME_WARP": 1,\
         "NEXT_STAGE": INITIAL_MEDICATION,\
         "CAP": 60,\
@@ -130,7 +130,7 @@ DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
         "EAT_FAILURE": 0,\
         "WORK_FAILURE": 0.1,\
         "WAKEUP_DELAY": 1}
-NORMAL = {"LENGTH": 7,\
+NORMAL = {"LENGTH": 3,\
         "NEXT_STAGE": DEPRESSION1,\
         "CAP": 100,\
         "THOUGHTS": NORMAL_THOUGHTS,\
