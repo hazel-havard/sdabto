@@ -422,6 +422,11 @@ class Sdabto_Cmd(cmd.Cmd):
         print("Sorry, that command is not recognized.  Try 'help' or '?' for suggestions")
         self.bad_command = True
 
+    def precmd(self, line):
+        if line[:4] == "eval":
+            return line
+        return line.lower()
+
     def postcmd(self, stop, line):
         if self.character.dead:
             print("You have died.  Game over")
