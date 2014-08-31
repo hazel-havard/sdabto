@@ -89,7 +89,7 @@ INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "WAKEUP_DELAY": 1,}
 HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe",\
         "EXIT_MESSAGE": "You are discharged.  You don't feel ready",\
-        "LENGTH": 1,\
+        "LENGTH": 2,\
         "TIME_WARP": 1,\
         "NEXT_STAGE": INITIAL_MEDICATION,\
         "CAP": 60,\
@@ -97,7 +97,8 @@ HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe"
         "THOUGHTS": HOSPITAL_THOUGHTS,\
         "THOUGHT_FREQ": 4/24,\
         "SOCIALIZE_FAILURE": 1,\
-        "WORK_FAILURE": 1}
+        "WORK_FAILURE": 1,\
+        "MEAL_TIMES": [7, 12, 18]}
 DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "LENGTH": 2,\
         "CAP": 10,\
@@ -461,11 +462,38 @@ class Sdabto_Cmd(cmd.Cmd):
         self.bad_command = False
         return stop
 
+    def get_sanitize_hour_str(self, hours):
+        '''Given an int of hours, create the hour string the sanitize method needs'''
+        hour_str = ""
+        if hours == 1:
+            hour_str = "after 1 hour "
+        elif hours > 1:
+            hour_str = "after " + str(hours) + " hours "
+        return hour_str
+
     def sanitize(self, arg):
         try:
             hours = int(arg)
         except ValueError:
             print("This command requires a number of hours, as in 'sleep 8'")
+            return None
+        if "MEAL_TIMES" in self.character.disease_stage:
+            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][0] and \
+                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][0]:
+                hours = self.character.disease_stage["MEAL_TIMES"][0] - (self.character.hours_played % 24)
+                hour_str = self.get_sanitize_hour_str(hours)
+                print("A nurse stops you " + hour_str + "to tell you it is breakfast time")
+            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][1] and \
+                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][1]:
+                hours = self.character.disease_stage["MEAL_TIMES"][1] - (self.character.hours_played % 24)
+                hour_str = self.get_sanitize_hour_str(hours)
+                print("A nurse stops you " + hour_str + "to tell you it is lunch time")
+            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][2] and \
+                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][2]:
+                hours = self.character.disease_stage["MEAL_TIMES"][2] - (self.character.hours_played % 24)
+                hour_str = self.get_sanitize_hour_str(hours)
+                print("A nurse stops you " + hour_str + "to tell you it is dinner time")
+        if hours == 0:
             return None
         return hours
 
@@ -483,6 +511,10 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_eat(self, arg):
         '''Eat a meal'''
+        if "MEAL_TIMES" in self.character.disease_stage and \
+                self.character.hours_played % 24 not in self.character.disease_stage["MEAL_TIMES"]:
+            print("It is not meal time yet")
+            return
         if self.character.last_meal < 4 or \
                 ("EAT_FAILURE" in self.character.disease_stage and \
                 random.random() < self.character.disease_stage["EAT_FAILURE"]):
@@ -543,6 +575,10 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_exercise(self, arg):
         '''Go for a run'''
+        if "MEAL_TIMES" in self.character.disease_stage and \
+                self.character.hours_played % 24 in self.character.disease_stage["MEAL_TIMES"]:
+            print("A nurse stops you to tell you it is meal time")
+            return
         if self.character.get_energy() < 20:
             print("Contemplating a run makes you feel exhausted.  Maybe tomorrow...")
             return
@@ -552,6 +588,10 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_shop(self, arg):
         '''Buy more groceries'''
+        if "MEAL_TIMES" in self.character.disease_stage and \
+                self.character.hours_played % 24 in self.character.disease_stage["MEAL_TIMES"]:
+            print("A nurse stops you to tell you it is meal time")
+            return
         if self.character.get_energy() < 10:
             print("You're too tired to haul home food.  There must be something in the fridge...")
             return
@@ -620,6 +660,10 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_call(self, arg):
         '''Call someone on the phone, as in 'call mom' '''
+        if "MEAL_TIMES" in self.character.disease_stage and \
+                self.character.hours_played % 24 in self.character.disease_stage["MEAL_TIMES"]:
+            print("A nurse stops you to tell you it is meal time")
+            return
         caller_known = False
         for key, synonym_list in CALL_DICT.items():
             if arg in synonym_list:
