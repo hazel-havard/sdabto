@@ -459,6 +459,10 @@ class Sdabto_Cmd(cmd.Cmd):
             return None
         return hours
 
+    def do_eval(self, arg):
+        '''for debugging only'''
+        eval(arg)
+
     def do_exit(self, arg):
         '''Exit the program'''
         return True
