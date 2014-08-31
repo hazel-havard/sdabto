@@ -30,7 +30,7 @@ SUICIDAL_IDEATION_MINOR = ["You wonder how many advil you would have to take bef
 SUICIDAL_IDEATION_MAJOR = ["You look up the LD50 of advil and figure out how much you'd need to kill yourself",\
         "You make a plan to kill yourself by cutting your throat in a running shower so there'd be no mess",\
         "You compose an email to the coroner so that no one you know would have to find your body"]
-SUICIDAL_IDEATION_EXTREME = ["You hold a pillow over your head until you pass out to see what suffocating is like,"\
+SUICIDAL_IDEATION_EXTREME = ["You hold a pillow over your head until you pass out to see what suffocating is like",\
         "You summon the strength to buy a lethal dose of advil",\
         "You pack your things so they will be easier to take care of when you're gone"]
 MANIC_THOUGHTS = ["You plan a cross-country rail trip",\
@@ -69,7 +69,7 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "EAT_FAILURE": 0.5,\
         "WAGE_MULTIPLIER": 2,\
         "FOCUS_CHANCE": 0.5,\
-        "LOSS_OF_CONTROL_CHANCE": 0.2,\
+        "LOSS_OF_CONTROL_CHANCE": 0.1,\
         "ACTIVITIES": ["SHOPPING", "DRIVING", "ART", "MUSIC"],\
         "SOCIALIZING_EFFECTS": ["DRUNK", "INAPPROPRIATE", "PROMISCUOUS"],\
         "SOCIALIZING_MULTIPLIER": 2,\
@@ -186,6 +186,8 @@ class Character:
             self.hours_socialized = 0
             self.hours_played += (24 * 30 * self.disease_stage["TIME_WARP"])
         self.disease_stage = stage
+        self.change_energy(0)
+        self.change_mood(0)
         self.disease_days = 0
         messages.append(self.disease_stage["INTRO_MESSAGE"])
         return messages
@@ -344,24 +346,24 @@ class Character:
         elif recipient in CALL_DICT["hospital"]:
             if self.disease_stage == DEPRESSION3:
                 messages.append("You are admitted to the hospital")
-                messages.append(self.change_stage(HOSPITALIZED))
-            elif self.disease_stage == MANIC:
+                messages.extend(self.change_stage(HOSPITALIZED))
+            elif self.disease_stage == MANIA:
                 messages.append("You are given a new treatement regimen to stabilize your mania")
-                messages.append(self.change_stage(MEDICATED))
+                messages.extend(self.change_stage(MEDICATED))
             else:
                 messages.append("You are turned away.  Try 'call doctor'")
         elif recipient in CALL_DICT["doctor"]:
             if self.disease_stage == DEPRESSION3:
                 messages.append("The doctor gets you admitted to the hospital")
-                messages.append(self.change_stage(HOSPITALIZED))
+                messages.extend(self.change_stage(HOSPITALIZED))
             elif self.disease_stage == DEPRESSION2:
                 messages.append("The doctor puts you on medication")
-                messages.append(self.change_stage(INITIAL_MEDICATION))
+                messages.extend(self.change_stage(INITIAL_MEDICATION))
             elif self.disease_stage == DEPRESSION1 or self.disease_stage == MEDICATED_DEPRESSION:
                 messages.append("Your symptoms have not been going on long enough.  Please come back in a week")
-            elif self.disease_stage == MANIC:
+            elif self.disease_stage == MANIA:
                 messages.append("Your treatement is changed to account for your mania")
-                messages.append(self.change_stage(MEDICATED))
+                messages.extend(self.change_stage(MEDICATED))
             elif self.disease_stage == NORMAL:
                 messages.append("You seem to be in fine health")
         elif recipient in CALL_DICT["helpline"]:
@@ -369,12 +371,12 @@ class Character:
         elif recipient in CALL_DICT["psychologist"]:
             if self.disease_stage == DEPRESSION3:
                 messages.append("The psychologist gets you admitted to the hospital")
-                self.append(self.change_stage(HOSPITALIZED))
+                self.extend(self.change_stage(HOSPITALIZED))
             elif self.disease_stage == DEPRESSION2:
                 messages.append("The psychologist recommends you see a doctor ('call doctor'), eat, sleep, exercise, and stay social")
             elif self.disease_stage == DEPRESSION1 or self.disease_stage == MEDICATED_DEPRESSION:
                 messages.append("The pyschologist recommends you make sure you are eating, sleeping, exercising and staying social")
-            elif self.disease_stage == MANIC:
+            elif self.disease_stage == MANIA:
                 messages.append("They psychologist thinks you are manic and recommends you see a doctor immediately ('call doctor')")
             else:
                 messages.append("They psychologist patiently listens to your problems")
@@ -481,7 +483,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if self.character.last_meal < 4 or \
                 ("EAT_FAILURE" in self.character.disease_stage and \
                 random.random() < self.character.disease_stage["EAT_FAILURE"]):
-            print("You're not hungry right now")
+            print("You don't feel like eating right now")
             return
         messages = self.character.eat()
         print("You eat a meal.  You now have " + str(self.character.groceries) + " meals left")
@@ -490,6 +492,9 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_work(self, arg):
         '''Work to gain money.  Please supply a number of hours, as in 'work 4' '''
+        hours = self.sanitize(arg)
+        if hours is None:
+            return
         if "WORK_FAILURE" in self.character.disease_stage and \
                 random.random() < self.character.disease_stage["WORK_FAILURE"]:
             print("You sit down to work but end up playing video games instead")
@@ -497,9 +502,6 @@ class Sdabto_Cmd(cmd.Cmd):
             return
         if self.character.get_energy() < 20:
             print("You try to work but your eyes can't focus on the screen.")
-            return
-        hours = self.sanitize(arg)
-        if hours is None:
             return
         if hours > 8:
             print("After 8 hours your mind starts to wander...")
