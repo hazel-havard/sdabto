@@ -74,7 +74,9 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "SOCIALIZING_EFFECTS": ["DRUNK", "INAPPROPRIATE", "PROMISCUOUS"],\
         "SOCIALIZING_MULTIPLIER": 2,\
         "SLEEP_CAP": 4,\
-        "SLEEP_ENERGY": 200}
+        "SLEEP_ENERGY": 200,\
+        "SOCIALIZING_CAP": 12,\
+        "GAMING_CAP": 16}
 INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 3,\
         "NEXT_STAGE": MANIA,\
@@ -286,7 +288,10 @@ class Character:
 
     def game(self, hours):
         messages = self.add_hours(hours)
-        hours = max(0, min(hours, 4 - self.hours_gamed))
+        daily_cap = 4
+        if "GAMING_CAP" in self.disease_stage:
+            daily_cap = self.disease_stage["GAMING_CAP"]
+        hours = max(0, min(hours, daily_cap - self.hours_gamed))
         self.hours_gamed += hours
         self.change_mood(5 * hours)
         return messages
@@ -295,7 +300,10 @@ class Character:
         messages = self.add_hours(hours)
         self.money -= 10 * hours
         self.change_energy(-5 * hours)
-        hours = max(0, min(hours, 3 - self.hours_socialized))
+        daily_cap = 3
+        if "SOCIALIZING_CAP" in self.disease_stage:
+            daily_cap = self.disease_stage["SOCIALIZING_CAP"]
+        hours = max(0, min(hours, daily_cap - self.hours_socialized))
         self.hours_socialized += hours
         mood_bonus = 10 * hours
         if "SOCIALIZING_MULTIPLIER" in self.disease_stage:
