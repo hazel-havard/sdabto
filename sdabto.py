@@ -3,7 +3,7 @@ import random
 
 #globals
 #costs in dollars
-RENT = 150
+RENT = 250
 GROCERIES = 50
 #allowable time between events.
 MEAL_INTERVAL = 6 #hours
@@ -209,7 +209,7 @@ class Character:
                 messages.extend(self.change_stage(self.disease_stage["NEXT_STAGE"]))
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money -= RENT
-                messages.append("Rent deducted.  You now have $" + str(self.money))
+                messages.append("Rent and bills deducted.  You now have $" + str(self.money))
         self.last_meal += hours
         self.last_sleep += hours
         self.hours_played += hours
