@@ -87,7 +87,7 @@ INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "SOCIALIZE_FAILURE": 0.1,\
         "WORK_FAILURE": 0.2,\
         "WAKEUP_DELAY": 1,}
-HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe",\
+HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe.  You have your laptop",\
         "EXIT_MESSAGE": "You are discharged.  You don't feel ready",\
         "LENGTH": 2,\
         "TIME_WARP": 1,\
@@ -96,9 +96,8 @@ HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe"
         "HUNGER_DELAY": 2,\
         "THOUGHTS": HOSPITAL_THOUGHTS,\
         "THOUGHT_FREQ": 4/24,\
-        "SOCIALIZE_FAILURE": 1,\
-        "WORK_FAILURE": 1,\
-        "MEAL_TIMES": [7, 12, 18]}
+        "MEAL_TIMES": [7, 12, 18],
+        "HOSPITAL_ACTIVITIES": True} 
 DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "LENGTH": 2,\
         "CAP": 10,\
@@ -530,6 +529,9 @@ class Sdabto_Cmd(cmd.Cmd):
         hours = self.sanitize(arg)
         if hours is None:
             return
+        if "HOSPITAL_ACTIVITIES" in self.character.disease_stage:
+            print("Your doctor doesn't want you to work while you're in the hospital")
+            return
         if "WORK_FAILURE" in self.character.disease_stage and \
                 random.random() < self.character.disease_stage["WORK_FAILURE"]:
             print("You sit down to work but end up playing video games instead")
@@ -575,6 +577,9 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_exercise(self, arg):
         '''Go for a run'''
+        if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
+            print("You're not allowed outside yet")
+            return
         if "MEAL_TIMES" in self.character.disease_stage and \
                 self.character.hours_played % 24 in self.character.disease_stage["MEAL_TIMES"]:
             print("A nurse stops you to tell you it is meal time")
@@ -588,6 +593,9 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_shop(self, arg):
         '''Buy more groceries'''
+        if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
+            print("You're not allowed outside yet")
+            return
         if "MEAL_TIMES" in self.character.disease_stage and \
                 self.character.hours_played % 24 in self.character.disease_stage["MEAL_TIMES"]:
             print("A nurse stops you to tell you it is meal time")
@@ -624,6 +632,9 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_socialize(self, arg):
         '''Go out with friends.  Please supply a number of hours, as in 'socialize 2' '''
+        if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
+            print("You're not allowed outside yet")
+            return
         if self.character.get_energy() < 20:
             print("You can't summon the energy to face people right now.  How about a quiet night in?")
             return
