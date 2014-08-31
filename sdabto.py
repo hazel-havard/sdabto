@@ -89,6 +89,7 @@ INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "WAKEUP_DELAY": 1,}
 HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe",\
         "LENGTH": 3,\
+        "TIME_WARP": 1,\
         "NEXT_STAGE": INITIAL_MEDICATION,\
         "CAP": 60,\
         "HUNGER_DELAY": 2,\
@@ -108,6 +109,7 @@ DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "WAKEUP_DELAY": 4}
 DEPRESSION2 = {"INTRO_MESSAGE": "You feel rough",\
         "LENGTH": 7,\
+        "TIME_WARP": 6,\
         "NEXT_STAGE": DEPRESSION3,\
         "CAP": 40,\
         "HUNGER_DELAY": 8,\
@@ -172,9 +174,21 @@ class Character:
             self.base_energy = self.disease_stage["CAP"]
 
     def change_stage(self, stage):
+        messages = []
+        if "TIME_WARP" in self.disease_stage:
+            month_str = " months pass "
+            if self.disease_stage["TIME_WARP"] == 1:
+                month_str = " month passes "
+            messages.append(str(self.disease_stage["TIME_WARP"]) + month_str + "this way")
+            self.last_exercise = 7
+            self.last_social = 7
+            self.hours_gamed = 0
+            self.hours_socialized = 0
+            self.hours_played += (24 * 30 * self.disease_stage["TIME_WARP"])
         self.disease_stage = stage
         self.disease_days = 0
-        return self.disease_stage["INTRO_MESSAGE"]
+        messages.append(self.disease_stage["INTRO_MESSAGE"])
+        return messages
 
     def add_hours(self, hours):
         messages = []
@@ -190,15 +204,7 @@ class Character:
                     self.dead = True
                     messages.append("You have committed suicide")
                     return messages
-                if self.disease_stage == DEPRESSION2:
-                    messages.append("6 months pass this way, playing video games and barely scraping by")
-                    self.money = 0
-                    self.last_exercise = 7
-                    self.last_social = 7
-                    self.hours_gamed = 0
-                    self.hours_socialized = 0
-                    self.hours_played += (24 * 30 * 6)
-                messages.append(self.change_stage(self.disease_stage["NEXT_STAGE"]))
+                messages.extend(self.change_stage(self.disease_stage["NEXT_STAGE"]))
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money -= RENT
                 messages.append("Rent deducted.  You now have $" + str(self.money))
