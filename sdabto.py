@@ -182,6 +182,8 @@ class Character:
         self.hours_played = 8
         self.hours_gamed = 0
         self.hours_socialized = 0
+        self.called_parents = False
+        self.called_friend = False
         self.disease_stage = NORMAL
         self.disease_days = 0
         self.dead = False
@@ -228,6 +230,8 @@ class Character:
         if (self.hours_played // 24) < ((self.hours_played + hours) // 24):
             self.hours_gamed = 0
             self.hours_socialized = 0
+            self.called_parents = False
+            self.called_friend = False
             self.last_exercise += 1
             self.last_social += 1
             self.last_cleaned += 1
@@ -362,6 +366,9 @@ class Character:
     def call(self, recipient):
         messages = self.add_hours(1)
         if recipient in CALL_DICT["parents"]:
+            if not self.called_parents:
+                self.change_mood(5)
+                self.called_parents = True
             if self.get_mood() < 20:
                 messages.append("Your parents notice how rough you're feeling and are worried")
             elif self.get_mood() < 50:
@@ -374,6 +381,9 @@ class Character:
                 self.money = 0
                 messages.append("Your parents bail you out of your debt.  You feel guilty")
         elif recipient in CALL_DICT["friend"]:
+            if not self.called_friend:
+                self.change_mood(5)
+                self.called_friend = True
             if self.get_mood() < 20:
                 messages.append("Your friend notices how rough you're feeling and is worried")
             elif self.get_mood() < 50:
