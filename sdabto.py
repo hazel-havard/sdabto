@@ -96,7 +96,8 @@ HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe.
         "HUNGER_DELAY": 2,\
         "THOUGHTS": HOSPITAL_THOUGHTS,\
         "THOUGHT_FREQ": 4/24,\
-        "MEAL_TIMES": [7, 12, 18],
+        "MEAL_TIMES": [7, 12, 18],\
+        "FREE_MEALS": True,\
         "HOSPITAL_ACTIVITIES": True} 
 DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "LENGTH": 2,\
@@ -279,7 +280,8 @@ class Character:
     def eat(self):
         messages = self.add_hours(1)
         self.last_meal = 0
-        self.groceries -= 1
+        if "FREE_MEALS" not in self.disease_stage:
+            self.groceries -= 1
         return messages
 
     def exercise(self):
@@ -528,7 +530,7 @@ class Sdabto_Cmd(cmd.Cmd):
             print("You don't feel like eating right now")
             return
         messages = self.character.eat()
-        print("You eat a meal.  You now have " + str(self.character.groceries) + " meals left")
+        print("You eat a meal")
         for message in messages:
             print(message)
 
