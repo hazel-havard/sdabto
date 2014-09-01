@@ -353,6 +353,8 @@ class Character:
             elif self.disease_stage == MANIA:
                 messages.append("You are given a new treatement regimen to stabilize your mania")
                 messages.extend(self.change_stage(MEDICATED))
+            elif self.disease_stage == HOSPITALIZED:
+                messages.append("You are already in the hosptial")
             else:
                 messages.append("You are turned away.  Try 'call doctor'")
         elif recipient in CALL_DICT["doctor"]:
@@ -369,6 +371,12 @@ class Character:
                 messages.extend(self.change_stage(MEDICATED))
             elif self.disease_stage == NORMAL:
                 messages.append("You seem to be in fine health")
+            elif self.disease_stage == HOSPITALIZED:
+                messages.append("Your doctor will see you when you are discharged")
+            elif self.disease_stage == INITIAL_MEDICATION:
+                messages.append("Your doctor tells you to give the medication some time to work")
+            elif self.disease_stage == MEDICATED:
+                messages.append("Everything seems to be working normally.  Some side-effects are to be expected")
         elif recipient in CALL_DICT["helpline"]:
             messages.append("The helpline details resources available to you.  Try 'call psychologist', 'call doctor', or 'call hospital'")
         elif recipient in CALL_DICT["psychologist"]:
