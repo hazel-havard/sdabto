@@ -60,6 +60,7 @@ MEDICATED_DEPRESSION = {"INTRO_MESSAGE": "You feel rough",\
         "SOCIALIZE_FAILURE": 0.5,\
         "EAT_FAILURE": 0.2,\
         "WORK_FAILURE": 0.5,\
+        "LEISURE_FAILURE": 0.2,\
         "WAKEUP_DELAY": 2,\
         "DOCTOR_MESSAGE": "Your symptoms haven't been going on long enough.  Come back in a week",\
         "PSYCHOLOGIST_MESSAGE": "The psychologist says to make sure you are eating, sleeping, and exercising"}
@@ -95,6 +96,7 @@ INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "THOUGHT_FREQ": 2/24,\
         "SOCIALIZE_FAILURE": 0.1,\
         "WORK_FAILURE": 0.2,\
+        "LEISURE_FAILURE": 0.1,\
         "WAKEUP_DELAY": 1,\
         "DOCTOR_MESSAGE": "Give the medication some time to work"}
 HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe.  You have your laptop",\
@@ -120,6 +122,7 @@ DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "SOCIALIZE_FAILURE": 1,\
         "EAT_FAILURE": 0.5,\
         "WORK_FAILURE": 1,\
+        "LEISURE_FAILURE": 1,\
         "WAKEUP_DELAY": 4,\
         "HOSPTIAL_MESSAGE": "You are admitted to the hosptial",\
         "HOSPTIAL_STAGE": HOSPITALIZED,\
@@ -138,6 +141,7 @@ DEPRESSION2 = {"INTRO_MESSAGE": "You feel rough",\
         "SOCIALIZE_FAILURE": 0.8,\
         "EAT_FAILURE": 0.1,\
         "WORK_FAILURE": 0.5,\
+        "LEISURE_FAILURE": 0.3,\
         "WAKEUP_DELAY": 2,\
         "DOCTOR_MESSAGE": "The doctor puts you on medication for your depression",\
         "DOCTOR_STAGE": INITIAL_MEDICATION,\
@@ -152,6 +156,7 @@ DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
         "SOCIALIZE_FAILURE": 0.2,\
         "EAT_FAILURE": 0,\
         "WORK_FAILURE": 0.1,\
+        "LEISURE_FAILURE": 0.1,\
         "WAKEUP_DELAY": 1,\
         "DOCTOR_MESSAGE": "Your symptoms haven't been going on for long enough.  Come back in a week",\
         "PSYCHOLOGIST_MESSAGE": "Make sure you are eating, sleeping, exercising, and staying social"}
@@ -182,6 +187,8 @@ class Character:
         self.hours_played = 8
         self.hours_gamed = 0
         self.hours_socialized = 0
+        self.hours_read = 0
+        self.hours_watched = 0
         self.called_parents = False
         self.called_friend = False
         self.disease_stage = NORMAL
@@ -214,6 +221,10 @@ class Character:
             self.last_cleaned = 7
             self.hours_gamed = 0
             self.hours_socialized = 0
+            self.hours_read = 0
+            self.hours_watched = 0
+            self.called_parents = False
+            self.called_friend = False
             self.hours_played += (24 * 30 * self.disease_stage["TIME_WARP"])
         if "EXIT_MESSAGE" in self.disease_stage:
             messages.append(self.disease_stage["EXIT_MESSAGE"])
@@ -230,6 +241,8 @@ class Character:
         if (self.hours_played // 24) < ((self.hours_played + hours) // 24):
             self.hours_gamed = 0
             self.hours_socialized = 0
+            self.hours_read = 0
+            self.hours_watched = 0
             self.called_parents = False
             self.called_friend = False
             self.last_exercise += 1
@@ -417,6 +430,20 @@ class Character:
                 messages.extend(self.change_stage(self.disease_stage["PSYCHOLOGIST_STAGE"]))
         return messages
 
+    def read(self, hours):
+        messages = self.add_hours(hours)
+        hours = max(0, min(hours, 4 - self.hours_read))
+        self.hours_read += hours
+        self.change_mood(5 * hours)
+        return messages
+
+    def watch(self, hours):
+        messages = self.add_hours(hours)
+        hours = max(0, min(hours, 4 - self.hours_watched))
+        self.hours_watched += hours
+        self.change_mood(5 * hours)
+        return messages
+
 class Sdabto_Cmd(cmd.Cmd):
     prompt = 'What would you like to do? '
 
@@ -470,7 +497,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if self.character.dead:
             print("You have died.  Game over")
             return True
-        if not stop and line != "help" and line != "?" and not self.bad_command:
+        if not stop and not line.startswith("help") and not line.startswith("?") and not self.bad_command:
             if "LOSS_OF_CONTROL_CHANCE" in self.character.disease_stage and \
                     random.random() < self.character.disease_stage["LOSS_OF_CONTROL_CHANCE"]:
                 print("You lose control for about 8 hours")
@@ -543,6 +570,7 @@ class Sdabto_Cmd(cmd.Cmd):
         return True
 
     def do_clean(self, arg):
+        '''Clean your house'''
         if "HOSPITAL_ACTIVITIES" in self.character.disease_stage:
             print("You're not at home right now")
             return
@@ -736,6 +764,49 @@ class Sdabto_Cmd(cmd.Cmd):
         for message in self.character.call(arg):
             print(message)
 
+    def do_read(self, arg):
+        '''Read a book.  Please supply a number of hours, as in 'read 4' '''
+        hours = self.sanitize(arg)
+        if hours is None:
+            return
+        if "LEISURE_FAILURE" in self.character.disease_stage and \
+                random.random() < self.character.disease_stage["LEISURE_FAILURE"]:
+            print("You try to read but the words swim on the page")
+            return
+        if hours > 4:
+            hours = 4
+            print("After 4 hours you lose interest")
+        messages = self.character.read(hours)
+        print("You read a book")
+        for message in messages:
+            print(message)
+
+    def do_watch(self, arg):
+        '''Watch tv or a movie for a number of hours, as in 'watch movie 4' '''
+        args = arg.split()
+        if len(args) < 2:
+            print("Please pick tv or movie and give a number of hours, as in 'watch movie 4'")
+            return
+        if args[0] != "tv" and args[0] != "movie":
+            print("You can watch tv or movies, as in 'watch movie 4'")
+            return
+        hours = self.sanitize(args[1])
+        if hours is None:
+            return
+        if "LEISURE_FAILURE" in self.character.disease_stage and \
+                random.random() < self.character.disease_stage["LEISURE_FAILURE"]:
+            print("You try to watch something but you can't stay focused on the plot")
+            return
+        if hours > 4:
+            hours = 4
+            print("After 4 hours you lose interest")
+        messages = self.character.watch(hours)
+        article = ""
+        if args[0] == "movie":
+            article = "a "
+        print("You watch " + article + args[0])
+        for message in messages:
+            print(message)
 
 def main():
     Sdabto_Cmd(Character()).cmdloop()
