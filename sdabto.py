@@ -48,7 +48,8 @@ MEDICATED = {"INTRO_MESSAGE": "You can feel things again",\
         "NEXT_STAGE": MEDICATED_DEPRESSION,\
         "CAP": 100,\
         "THOUGHTS": NORMAL_THOUGHTS,\
-        "THOUGHT_FREQ": 1/24}
+        "THOUGHT_FREQ": 1/24,\
+        "DOCTOR_MESSAGE": "Everything seems okay.  Some side effects are to be expected"}
 MEDICATED_DEPRESSION = {"INTRO_MESSAGE": "You feel rough",\
         "LENGTH": 7,\
         "NEXT_STAGE": MEDICATED,\
@@ -59,7 +60,9 @@ MEDICATED_DEPRESSION = {"INTRO_MESSAGE": "You feel rough",\
         "SOCIALIZE_FAILURE": 0.5,\
         "EAT_FAILURE": 0.2,\
         "WORK_FAILURE": 0.5,\
-        "WAKEUP_DELAY": 2,}
+        "WAKEUP_DELAY": 2,\
+        "DOCTOR_MESSAGE": "Your symptoms haven't been going on long enough.  Come back in a week",\
+        "PSYCHOLOGIST_MESSAGE": "The psychologist says to make sure you are eating, sleeping, and exercising"}
 MANIA = {"INTRO_MESSAGE": "You feel good",\
         "LENGTH": 7,\
         "NEXT_STAGE": MEDICATED_DEPRESSION,\
@@ -77,7 +80,12 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "SLEEP_CAP": 4,\
         "SLEEP_ENERGY": 200,\
         "SOCIALIZING_CAP": 12,\
-        "GAMING_CAP": 16}
+        "GAMING_CAP": 16,\
+        "HOSPTIAL_MESSAGE": "The hosptial changes your medication plan to stabilize your mania",\
+        "HOSPTIAL_STAGE": MEDICATED_DEPRESSION,\
+        "DOCTOR_MESSAGE": "The doctor changes your medication plan to stabilize your mania",\
+        "DOCTOR_STAGE": MEDICATED_DEPRESSION,\
+        "PSYCHOLOGIST_MESSAGE": "The psychologist thinks you are manic and should see a doctor"}
 INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "LENGTH": 3,\
         "NEXT_STAGE": MANIA,\
@@ -87,7 +95,8 @@ INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "THOUGHT_FREQ": 2/24,\
         "SOCIALIZE_FAILURE": 0.1,\
         "WORK_FAILURE": 0.2,\
-        "WAKEUP_DELAY": 1,}
+        "WAKEUP_DELAY": 1,\
+        "DOCTOR_MESSAGE": "Give the medication some time to work"}
 HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe.  You have your laptop",\
         "EXIT_MESSAGE": "You are discharged.  You don't feel ready",\
         "LENGTH": 2,\
@@ -99,7 +108,9 @@ HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe.
         "THOUGHT_FREQ": 4/24,\
         "MEAL_TIMES": [7, 12, 18],\
         "FREE_MEALS": True,\
-        "HOSPITAL_ACTIVITIES": True} 
+        "HOSPITAL_ACTIVITIES": True,\
+        "HOSPITAL_MESSAGE": "You are already in the hosptial",\
+        "DOCTOR_MESSAGE": "The doctor will see you when you are discharged"} 
 DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "LENGTH": 2,\
         "CAP": 10,\
@@ -109,7 +120,13 @@ DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "SOCIALIZE_FAILURE": 1,\
         "EAT_FAILURE": 0.5,\
         "WORK_FAILURE": 1,\
-        "WAKEUP_DELAY": 4}
+        "WAKEUP_DELAY": 4,\
+        "HOSPTIAL_MESSAGE": "You are admitted to the hosptial",\
+        "HOSPTIAL_STAGE": HOSPITALIZED,\
+        "DOCTOR_MESSAGE": "The doctor gets you admitted to the hosptial",\
+        "DOCTOR_STAGE": HOSPITALIZED,\
+        "PSYCHOLOGIST_MESSAGE": "The psychologist gets you admitted to the hospital",\
+        "PSYCHOLOGIST_STAGE": HOSPITALIZED}
 DEPRESSION2 = {"INTRO_MESSAGE": "You feel rough",\
         "LENGTH": 7,\
         "TIME_WARP": 6,\
@@ -121,7 +138,10 @@ DEPRESSION2 = {"INTRO_MESSAGE": "You feel rough",\
         "SOCIALIZE_FAILURE": 0.8,\
         "EAT_FAILURE": 0.1,\
         "WORK_FAILURE": 0.5,\
-        "WAKEUP_DELAY": 2}
+        "WAKEUP_DELAY": 2,\
+        "DOCTOR_MESSAGE": "The doctor puts you on medication for your depression",\
+        "DOCTOR_STAGE": INITIAL_MEDICATION,\
+        "PSYCHOLOGIST_MESSAGE": "The psychologist recommends you call a doctor and make sure you are staying healthy"}
 DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
         "LENGTH": 7,\
         "NEXT_STAGE": DEPRESSION2,\
@@ -132,7 +152,9 @@ DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
         "SOCIALIZE_FAILURE": 0.2,\
         "EAT_FAILURE": 0,\
         "WORK_FAILURE": 0.1,\
-        "WAKEUP_DELAY": 1}
+        "WAKEUP_DELAY": 1,\
+        "DOCTOR_MESSAGE": "Your symptoms haven't been going on for long enough.  Come back in a week",\
+        "PSYCHOLOGIST_MESSAGE": "Make sure you are eating, sleeping, exercising, and staying social"}
 NORMAL = {"LENGTH": 3,\
         "NEXT_STAGE": DEPRESSION1,\
         "CAP": 100,\
@@ -180,7 +202,7 @@ class Character:
 
     def change_stage(self, stage):
         messages = []
-        if "TIME_WARP" in self.disease_stage:
+        if "TIME_WARP" in self.disease_stage and stage == self.disease_stage["NEXT_STAGE"]:
             month_str = " months pass "
             if self.disease_stage["TIME_WARP"] == 1:
                 month_str = " month passes "
@@ -361,50 +383,28 @@ class Character:
             else:
                 messages.append("You have a lovely chat with a friend")
         elif recipient in CALL_DICT["hospital"]:
-            if self.disease_stage == DEPRESSION3:
-                messages.append("You are admitted to the hospital")
-                messages.extend(self.change_stage(HOSPITALIZED))
-            elif self.disease_stage == MANIA:
-                messages.append("You are given a new treatement regimen to stabilize your mania")
-                messages.extend(self.change_stage(MEDICATED))
-            elif self.disease_stage == HOSPITALIZED:
-                messages.append("You are already in the hosptial")
+            if "HOSPITAL_MESSAGE" in self.disease_stage:
+                messages.append(self.disease_stage["HOSPTIAL_MESSAGE"])
             else:
                 messages.append("You are turned away.  Try 'call doctor'")
+            if "HOSPTIAL_STAGE"  in self.disease_stage:
+                messages.extend(self.change_stage(self.disease_stage["HOSPTIAL_STAGE"]))
         elif recipient in CALL_DICT["doctor"]:
-            if self.disease_stage == DEPRESSION3:
-                messages.append("The doctor gets you admitted to the hospital")
-                messages.extend(self.change_stage(HOSPITALIZED))
-            elif self.disease_stage == DEPRESSION2:
-                messages.append("The doctor puts you on medication")
-                messages.extend(self.change_stage(INITIAL_MEDICATION))
-            elif self.disease_stage == DEPRESSION1 or self.disease_stage == MEDICATED_DEPRESSION:
-                messages.append("Your symptoms have not been going on long enough.  Please come back in a week")
-            elif self.disease_stage == MANIA:
-                messages.append("Your treatement is changed to account for your mania")
-                messages.extend(self.change_stage(MEDICATED))
-            elif self.disease_stage == NORMAL:
+            if "DOCTOR_MESSAGE" in self.disease_stage:
+                messages.append(self.disease_stage["DOCTOR_MESSAGE"])
+            else:
                 messages.append("You seem to be in fine health")
-            elif self.disease_stage == HOSPITALIZED:
-                messages.append("Your doctor will see you when you are discharged")
-            elif self.disease_stage == INITIAL_MEDICATION:
-                messages.append("Your doctor tells you to give the medication some time to work")
-            elif self.disease_stage == MEDICATED:
-                messages.append("Everything seems to be working normally.  Some side-effects are to be expected")
+            if "DOCTOR_STAGE" in self.disease_stage:
+                messages.extend(self.change_stage(self.disease_stage["DOCTOR_STAGE"]))
         elif recipient in CALL_DICT["helpline"]:
             messages.append("The helpline details resources available to you.  Try 'call psychologist', 'call doctor', or 'call hospital'")
         elif recipient in CALL_DICT["psychologist"]:
-            if self.disease_stage == DEPRESSION3:
-                messages.append("The psychologist gets you admitted to the hospital")
-                self.extend(self.change_stage(HOSPITALIZED))
-            elif self.disease_stage == DEPRESSION2:
-                messages.append("The psychologist recommends you see a doctor ('call doctor'), eat, sleep, exercise, and stay social")
-            elif self.disease_stage == DEPRESSION1 or self.disease_stage == MEDICATED_DEPRESSION:
-                messages.append("The pyschologist recommends you make sure you are eating, sleeping, exercising and staying social")
-            elif self.disease_stage == MANIA:
-                messages.append("They psychologist thinks you are manic and recommends you see a doctor immediately ('call doctor')")
+            if "PSYCHOLOGIST_MESSAGE" in self.disease_stage:
+                messages.append(self.disease_stage["PSYCHOLOGIST_MESSAGE"])
             else:
                 messages.append("They psychologist patiently listens to your problems")
+            if "PSYCHOLOGIST_STAGE" in self.disease_stage:
+                messages.extend(self.change_stage(self.disease_stage["PSYCHOLOGIST_STAGE"]))
         return messages
 
 class Sdabto_Cmd(cmd.Cmd):
