@@ -10,6 +10,7 @@ MEAL_INTERVAL = 6 #hours
 SLEEP_INTERVAL = 16 #hours
 EXERCISE_INTERVAL = 2 #days
 SOCIAL_INTERVAL = 2 #days
+CLEANING_INTERVAL = 2 #days
 #Risks of death while out of control
 SPEEDING_RISK = 0.2
 ALCOHOL_POISONING_CHANCE = 0.2
@@ -152,6 +153,8 @@ class Character:
         self.last_exercise = 1
         #in days
         self.last_social = 1
+        #in days
+        self.last_cleaned = 1
         #number of meals
         self.groceries = 21
         self.hours_played = 8
@@ -184,6 +187,7 @@ class Character:
             messages.append(str(self.disease_stage["TIME_WARP"]) + month_str + "this way")
             self.last_exercise = 7
             self.last_social = 7
+            self.last_cleaned = 7
             self.hours_gamed = 0
             self.hours_socialized = 0
             self.hours_played += (24 * 30 * self.disease_stage["TIME_WARP"])
@@ -204,6 +208,7 @@ class Character:
             self.hours_socialized = 0
             self.last_exercise += 1
             self.last_social += 1
+            self.last_cleaned += 1
             self.disease_days += 1
             if self.disease_days >= self.disease_stage["LENGTH"]:
                 if "NEXT_STAGE" not in self.disease_stage:
@@ -232,6 +237,8 @@ class Character:
             mood -= min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
         if self.last_social > SOCIAL_INTERVAL:
             mood -= min(5 * (self.last_social - SOCIAL_INTERVAL), 20)
+        if self.last_cleaned > CLEANING_INTERVAL:
+            mood -= 5
         if mood < 0:
             mood = 0
         elif mood > self.disease_stage["CAP"]:
@@ -251,6 +258,11 @@ class Character:
         elif energy > self.disease_stage["CAP"]:
             energy = self.disease_stage["CAP"]
         return energy
+
+    def clean(self):
+        messages = self.add_hours(1)
+        self.last_cleaned = 0
+        return messages
 
     def work(self, hours):
         messages = self.add_hours(hours)
@@ -422,6 +434,8 @@ class Sdabto_Cmd(cmd.Cmd):
             print("You feel lethargic")
         if self.character.last_social > SOCIAL_INTERVAL:
             print("You feel lonely")
+        if self.character.last_cleaned > CLEANING_INTERVAL:
+            print("Your house is a mess")
 
     def preloop(self):
         print("Welcome to Some Days Are Better Than Others")
@@ -517,6 +531,22 @@ class Sdabto_Cmd(cmd.Cmd):
     def do_quit(self, arg):
         '''Exit the program'''
         return True
+
+    def do_clean(self, arg):
+        if "HOSPITAL_ACTIVITIES" in self.character.disease_stage:
+            print("You're not at home right now")
+            return
+        if "WORK_FAILURE" in self.character.disease_stage and \
+                random.random() < self.character.disease_stage["WORK_FAILURE"]:
+            print("You can't be bothered to clean anything right now")
+            return
+        if self.character.get_energy() < 10:
+            print("You're too tired to face cleaning right now")
+            return
+        messages = self.character.clean()
+        print("You clean your house")
+        for message in messages:
+            print(message)
 
     def do_eat(self, arg):
         '''Eat a meal'''
