@@ -115,7 +115,7 @@ HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe.
         "DOCTOR_MESSAGE": "The doctor will see you when you are discharged"} 
 DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
         "LENGTH": 2,\
-        "CAP": 10,\
+        "CAP": 30,\
         "HUNGER_DELAY": 24,\
         "THOUGHTS": SUICIDAL_IDEATION_EXTREME,\
         "THOUGHT_FREQ": 1,\
@@ -578,7 +578,7 @@ class Sdabto_Cmd(cmd.Cmd):
                 random.random() < self.character.disease_stage["WORK_FAILURE"]:
             print("You can't be bothered to clean anything right now")
             return
-        if self.character.get_energy() < 10:
+        if self.character.get_energy() < 20:
             print("You're too tired to face cleaning right now")
             return
         messages = self.character.clean()
