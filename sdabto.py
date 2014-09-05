@@ -15,12 +15,12 @@ CLEANING_INTERVAL = 2 #days
 SPEEDING_RISK = 0.2
 ALCOHOL_POISONING_CHANCE = 0.2
 #list of people you can call
-CALL_DICT = {"parents": ["mom", "mother", "dad", "father", "parents"],\
-        "friend": ["friend", "friends"],\
-        "hospital": ["hospital", "police", "ambulance", "911"],\
-        "doctor": ["doctor", "psychiatrist"],\
-        "helpline": ["helpline", "suicide helpline", "hotline", "suicide hotline"],\
-        "psychologist": ["therapist", "councellor", "psychologist"]}
+CALL_DICT = {"parents": ("mom", "mother", "dad", "father", "parents"),\
+        "friend": ("friend", "friends"),\
+        "hospital": ("hospital", "police", "ambulance", "911"),\
+        "doctor": ("doctor", "psychiatrist"),\
+        "helpline": ("helpline", "suicide helpline", "hotline", "suicide hotline"),\
+        "psychologist": ("therapist", "councellor", "psychologist")}
 #side effects for medicated stages
 LOW_ENERGY = {"MESSAGE": "You feel sluggish for some reason",\
         "PENALTY": 30}
@@ -39,24 +39,24 @@ SIDE_EFFECTS = (LOW_ENERGY, LOW_CONCENTRATION, POOR_APPETITE, SHAKY_HANDS, POOR_
 SIDE_EFFECT = random.choice(SIDE_EFFECTS)
 SIDE_EFFECT_FREQ = 2/24
 #messages
-NORMAL_THOUGHTS = ["You daydream about saving a baby from a fire",\
+NORMAL_THOUGHTS = ("You daydream about saving a baby from a fire",\
         "You imagine what you would do if you were fabulously wealthy",\
-        "You fondly remember an old friend"]
-SUICIDAL_IDEATION_MINOR = ["You wonder how many advil you would have to take before you died",\
+        "You fondly remember an old friend")
+SUICIDAL_IDEATION_MINOR = ("You wonder how many advil you would have to take before you died",\
         "You wonder if your pen knife is sharp enough to cut your throat",\
-        "You suddenly imagine shooting yourself"]
-SUICIDAL_IDEATION_MAJOR = ["You look up the LD50 of advil and figure out how much you'd need to kill yourself",\
+        "You suddenly imagine shooting yourself")
+SUICIDAL_IDEATION_MAJOR = ("You look up the LD50 of advil and figure out how much you'd need to kill yourself",\
         "You make a plan to kill yourself by cutting your throat in a running shower so there'd be no mess",\
-        "You compose an email to the coroner so that no one you know would have to find your body"]
-SUICIDAL_IDEATION_EXTREME = ["You hold a pillow over your head until you pass out to see what suffocating is like",\
+        "You compose an email to the coroner so that no one you know would have to find your body")
+SUICIDAL_IDEATION_EXTREME = ("You hold a pillow over your head until you pass out to see what suffocating is like",\
         "You summon the strength to buy a lethal dose of advil",\
-        "You pack your things so they will be easier to take care of when you're gone"]
-MANIC_THOUGHTS = ["You plan a cross-country rail trip",\
+        "You pack your things so they will be easier to take care of when you're gone")
+MANIC_THOUGHTS = ("You plan a cross-country rail trip",\
         "You decide to landscape your back yard",\
-        "You decide to learn to play an instrument"]
-HOSPITAL_THOUGHTS = ["You feel bored but safe",\
+        "You decide to learn to play an instrument")
+HOSPITAL_THOUGHTS = ("You feel bored but safe",\
         "Everyone else in here seems crazy",\
-        "You wonder why you don't miss home"]
+        "You wonder why you don't miss home")
 #disease stages
 #Must have LENGTH, CAP, THOUGHTS, & THOUGHT_FREQ
 MEDICATED_DEPRESSION = {}
@@ -94,8 +94,8 @@ MANIA = {"INTRO_MESSAGE": "You feel good",\
         "WAGE_MULTIPLIER": 2,\
         "FOCUS_CHANCE": 0.5,\
         "LOSS_OF_CONTROL_CHANCE": 0.1,\
-        "ACTIVITIES": ["SHOPPING", "DRIVING", "ART", "MUSIC"],\
-        "SOCIALIZING_EFFECTS": ["DRUNK", "INAPPROPRIATE", "PROMISCUOUS"],\
+        "ACTIVITIES": ("SHOPPING", "DRIVING", "ART", "MUSIC"),\
+        "SOCIALIZING_EFFECTS": ("DRUNK", "INAPPROPRIATE", "PROMISCUOUS"),\
         "SOCIALIZING_MULTIPLIER": 2,\
         "SLEEP_CAP": 4,\
         "SLEEP_ENERGY": 200,\
@@ -128,7 +128,7 @@ HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe.
         "HUNGER_DELAY": 2,\
         "THOUGHTS": HOSPITAL_THOUGHTS,\
         "THOUGHT_FREQ": 4/24,\
-        "MEAL_TIMES": [7, 12, 18],\
+        "MEAL_TIMES": (7, 12, 18),\
         "FREE_MEALS": True,\
         "HOSPITAL_ACTIVITIES": True,\
         "HOSPITAL_MESSAGE": "You are already in the hosptial",\
