@@ -21,6 +21,23 @@ CALL_DICT = {"parents": ["mom", "mother", "dad", "father", "parents"],\
         "doctor": ["doctor", "psychiatrist"],\
         "helpline": ["helpline", "suicide helpline", "hotline", "suicide hotline"],\
         "psychologist": ["therapist", "councellor", "psychologist"]}
+#side effects for medicated stages
+LOW_ENERGY = {"MESSAGE": "You feel sluggish for some reason",\
+        "PENALTY": 30}
+LOW_CONCENTRATION = {"MESSAGE": "You're having a lot of trouble focusing right now",\
+        "KEYS": ("WORK_FAILURE", "LEISURE_FAILURE"),\
+        "PENALTY": 0.2}
+POOR_APPETITE = {"MESSAGE": "You haven't seemed to have much of an appetite lately",\
+        "KEYS": ("HUNGER_DELAY"),\
+        "PENALTY": 2}
+SHAKY_HANDS = {"MESSAGE": "Your hands have been shaking uncontrollably lately"}
+POOR_MEMORY = {"MESSAGE": "You can't seem to remember the simplest things lately"}
+NAUSEA = {"MESSAGE": "You keep feeling queasy lately",\
+        "KEYS": ("EAT_FAILURE"),\
+        "PENALTY": 0.2}
+SIDE_EFFECTS = (LOW_ENERGY, LOW_CONCENTRATION, POOR_APPETITE, SHAKY_HANDS, POOR_MEMORY, NAUSEA)
+SIDE_EFFECT = random.choice(SIDE_EFFECTS)
+SIDE_EFFECT_FREQ = 2/24
 #messages
 NORMAL_THOUGHTS = ["You daydream about saving a baby from a fire",\
         "You imagine what you would do if you were fabulously wealthy",\
@@ -49,7 +66,8 @@ MEDICATED = {"INTRO_MESSAGE": "You can feel things again",\
         "CAP": 100,\
         "THOUGHTS": NORMAL_THOUGHTS,\
         "THOUGHT_FREQ": 1/24,\
-        "DOCTOR_MESSAGE": "Everything seems okay.  Some side effects are to be expected"}
+        "DOCTOR_MESSAGE": "Everything seems okay.  Some side effects are to be expected",\
+        "EFFECT": SIDE_EFFECT}
 MEDICATED_DEPRESSION = {"INTRO_MESSAGE": "You feel rough",\
         "LENGTH": 7,\
         "NEXT_STAGE": MEDICATED,\
@@ -63,7 +81,8 @@ MEDICATED_DEPRESSION = {"INTRO_MESSAGE": "You feel rough",\
         "LEISURE_FAILURE": 0.2,\
         "WAKEUP_DELAY": 2,\
         "DOCTOR_MESSAGE": "Your symptoms haven't been going on long enough.  Come back in a week",\
-        "PSYCHOLOGIST_MESSAGE": "The psychologist says to make sure you are eating, sleeping, and exercising"}
+        "PSYCHOLOGIST_MESSAGE": "The psychologist says to make sure you are eating, sleeping, and exercising",\
+        "EFFECT": SIDE_EFFECT}
 MANIA = {"INTRO_MESSAGE": "You feel good",\
         "LENGTH": 7,\
         "NEXT_STAGE": MEDICATED_DEPRESSION,\
@@ -98,7 +117,8 @@ INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
         "WORK_FAILURE": 0.2,\
         "LEISURE_FAILURE": 0.1,\
         "WAKEUP_DELAY": 1,\
-        "DOCTOR_MESSAGE": "Give the medication some time to work"}
+        "DOCTOR_MESSAGE": "Give the medication some time to work",\
+        "EFFECT": SIDE_EFFECT}
 HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe.  You have your laptop",\
         "EXIT_MESSAGE": "You are discharged.  You don't feel ready",\
         "LENGTH": 2,\
@@ -165,6 +185,15 @@ NORMAL = {"LENGTH": 3,\
         "CAP": 100,\
         "THOUGHTS": NORMAL_THOUGHTS,\
         "THOUGHT_FREQ": 1/24}
+
+STAGES = (NORMAL, DEPRESSION1, DEPRESSION2, DEPRESSION3, HOSPITALIZED, INITIAL_MEDICATION, MANIA, MEDICATED, MEDICATED_DEPRESSION)
+for stage in STAGES:
+    if "EFFECT" in stage and "KEYS" in stage["EFFECT"]:
+        for key in stage["EFFECT"]["KEYS"]:
+            if key in stage:
+                stage[key] += stage["EFFECT"]["PENALTY"]
+            else:
+                stage[key] = stage["EFFECT"]["PENALTY"]
 
 class Character:
     def __init__(self):
@@ -261,6 +290,8 @@ class Character:
         self.last_meal += hours
         self.last_sleep += hours
         self.hours_played += hours
+        if "EFFECT" in self.disease_stage and random.random() < SIDE_EFFECT_FREQ:
+            messages.append(self.disease_stage["EFFECT"]["MESSAGE"])
         if random.random() < self.disease_stage["THOUGHT_FREQ"] * hours:
             messages.append(random.choice(self.disease_stage["THOUGHTS"]))
         if self.last_meal > 24 * 7:
@@ -292,6 +323,8 @@ class Character:
             energy -= min(5 * (self.last_sleep - SLEEP_INTERVAL), 20)
         if self.last_exercise > EXERCISE_INTERVAL:
             energy -= min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
+        if "EFFECT" in self.disease_stage and self.disease_stage["EFFECT"] == LOW_ENERGY:
+            energy -= self.disease_stage["EFFECT"]["PENALTY"]
         if energy < 0:
             energy = 0
         elif energy > self.disease_stage["CAP"]:
@@ -489,7 +522,7 @@ class Sdabto_Cmd(cmd.Cmd):
         self.bad_command = True
 
     def precmd(self, line):
-        if line[:4] == "eval":
+        if line.startswith("eval"):
             return line
         return line.lower()
 
