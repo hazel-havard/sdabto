@@ -1,5 +1,7 @@
 import cmd
 import random
+import messages
+import stages
 
 #globals
 #costs in dollars
@@ -21,256 +23,6 @@ CALL_DICT = {"parents": ("mom", "mother", "dad", "father", "parents"),\
         "doctor": ("doctor", "psychiatrist"),\
         "helpline": ("helpline", "suicide helpline", "hotline", "suicide hotline"),\
         "psychologist": ("therapist", "councellor", "psychologist")}
-#side effects for medicated stages
-LOW_ENERGY = {"MESSAGE": "You feel sluggish for some reason",\
-        "PENALTY": 30}
-LOW_CONCENTRATION = {"MESSAGE": "You're having a lot of trouble focusing right now",\
-        "KEYS": ("WORK_FAILURE", "LEISURE_FAILURE"),\
-        "PENALTY": 0.2}
-POOR_APPETITE = {"MESSAGE": "You haven't seemed to have much of an appetite lately",\
-        "KEYS": ("HUNGER_DELAY"),\
-        "PENALTY": 2}
-SHAKY_HANDS = {"MESSAGE": "Your hands have been shaking uncontrollably lately"}
-POOR_MEMORY = {"MESSAGE": "You can't seem to remember the simplest things lately"}
-NAUSEA = {"MESSAGE": "You keep feeling queasy lately",\
-        "KEYS": ("EAT_FAILURE"),\
-        "PENALTY": 0.2}
-SIDE_EFFECTS = (LOW_ENERGY, LOW_CONCENTRATION, POOR_APPETITE, SHAKY_HANDS, POOR_MEMORY, NAUSEA)
-SIDE_EFFECT = random.choice(SIDE_EFFECTS)
-SIDE_EFFECT_FREQ = 2/24
-#messages
-NORMAL_THOUGHTS = ("You daydream about saving a baby from a fire",\
-        "You imagine what you would do if you were fabulously wealthy",\
-        "You fondly remember an old friend",\
-        "You think about changing careers",\
-        "You wonder if you could invent something simple and get rich",\
-        "You wonder if you have any new email",\
-        "Your mind strays to the book you are reading",\
-        "You plan your next move in the video game you're playing",\
-        "You think you have a pretty good idea for a video game",\
-        "You make a shopping list in your head",\
-        "You replay the last argument you had in your head, adding better retorts",\
-        "You have an imaginary conversation in your head with someone you admire",\
-        "You test several new routes to the grocery store in your head for efficiency",\
-        "You think lots of kind thoughts in case someone nearby can read minds",\
-        "You try to decide what super power you would most like to have",\
-        "You imagine winning an Olympic medal",\
-        "You have a pretend conversation with a talk show host",\
-        "You remember a weird dream you had last night",\
-        "You get a series of increasingly terrible songs stuck in your head",\
-        "You ponder a problem you've been stuck on in your work",\
-        "You wonder what the curiosity rover is up to right now",\
-        "You wonder who writes terms of service agreements and if they hate their job")
-SUICIDAL_IDEATION_MINOR = ("You wonder how many advil you would have to take before you died",\
-        "You wonder if your pen knife is sharp enough to cut your throat",\
-        "You suddenly imagine shooting yourself",\
-        "Every time you are outside you imagine stepping in front of traffic",\
-        "You think of how grateful you'd be if someone randomly shot you",\
-        "You day dream about falling asleep and never waking up",\
-        "You feel like you'll never feel rested again",\
-        "You wonder if your friends actually like you or if they're just being polite",\
-        "You wonder if there are things in your house you could combine to make a painless poison for yourself",\
-        "You wonder if you are fast enough to step in front of a bus before the driver could stop",\
-        "Last time you were on a train platform you kept imagining jumping onto the tracks",\
-        "You wonder where people get lethal doses of hard drugs",\
-        "You imagine what your funeral would be like if you killed yourself",\
-        "You realize all your problems would go away if you were dead",\
-        "You wonder if hanging yourself would be a relatively painless way to die")
-SUICIDAL_IDEATION_MAJOR = ("You look up the LD50 of advil and figure out how much you'd need to kill yourself",\
-        "You make a plan to kill yourself by cutting your throat in a running shower so there'd be no mess",\
-        "You wish you had an extra day in the week to catch up",\
-        "You make a game out of trying to come up with ways to kill yourself using only things in this room",\
-        "You concoct increasingly elaborate ways to kill yourself.",\
-        "You imagine drowning yourself in your bathtub by weighing down your head",\
-        "You imagine drowning duct taped to the underside of a mattress in a pool, and laugh at yourself",\
-        "You make a plan to kill yourself by hanging yourself with some chain you have lying around",\
-        "You research lethal doses of draino and decide dying that way would take too long",\
-        "You look up the local gun laws and wonder if you could pass for sane long enough to buy one",\
-        "You practice tying hangman's knots",\
-        "You think about shooting yourself so that the bullet would go into the ground and not hurt anyone else",\
-        "You wish someone would ask you what was wrong, but realize you probably wouldn't tell them")
-SUICIDAL_IDEATION_EXTREME = ("You hold a pillow over your head until you pass out to see what suffocating is like",\
-        "You dig out some T3s left over from your wisdom teeth surgery",\
-        "You decide to buy a lethal dose of advil",\
-        "You regret not having killed yourself earlier",\
-        "You start packing your things so they will be easier to take care of when you're gone",\
-        "You compose an email to the coroner so that no one you know would have to find your body",\
-        "You pick a spot to swim out into the ocean until you get tired and drown",\
-        "You put a knife on your bedside table",\
-        "You decide to hike out into the wilderness until you died of exposure",\
-        "You pick a park to OD in",\
-        "You lie on the floor for a little while")
-MANIC_THOUGHTS = ("You plan a cross-country rail trip",\
-        "You decide to landscape your back yard",\
-        "You decide to become a bike mechanic",\
-        "You realize you can easily do math in your head that you didn't used to be able to",\
-        "You start picturing moving objects in four dimensions",\
-        "You decide to start a hiking club",\
-        "You decide to create a wiki",\
-        "You decide to clean up some local trails",\
-        "You start picking out colours to paint your house",\
-        "You decide to learn to pick locks",\
-        "You realize you know all the words to a song you thought you'd forgotten",\
-        "You decide to start going to church",\
-        "You decide to build a mountain-top shrine",\
-        "You feel like you can feel the presence of God",\
-        "You feel like God is communicating with you personally",\
-        "You pick up a project you had long-since abandoned",\
-        "You decide to learn Elvish and have an internal crisis over whether to learn Quenya or Sindarin",\
-        "You wonder if you could make a living as a con-artist",\
-        "You feel more powerful than you ever have before",\
-        "You feel like you could do anything",\
-        "Your thoughts are racing so fast you wonder you can keep up",\
-        "You wonder how much shoplifting you could get away with",\
-        "You plan a hitch-hiking vacation",\
-        "You decide to learn to play an instrument")
-HOSPITAL_THOUGHTS = ("You feel bored but safe",\
-        "Everyone else in here seems crazy",\
-        "You realize the shower curtain bar isn't bolted on so you can't hang yourself from it.  You feel safer",\
-        "You wish you cared that the food is so bad.  Seriously though, was this milk frozen?",\
-        "You feel numb",\
-        "You don't think anything at all for a while",\
-        "You hear a strange banging and realize it is another patient kicking his radiator",\
-        "You have a new respect for psych ward nurses",\
-        "You wish you could live the rest of your life in here",\
-        "You wonder why you don't miss home")
-#disease stages
-#Must have LENGTH, CAP, THOUGHTS, & THOUGHT_FREQ
-MEDICATED_DEPRESSION = {}
-MEDICATED = {"INTRO_MESSAGE": "You can feel things again",\
-        "LENGTH": 21,\
-        "NEXT_STAGE": MEDICATED_DEPRESSION,\
-        "CAP": 100,\
-        "THOUGHTS": NORMAL_THOUGHTS,\
-        "THOUGHT_FREQ": 1/24,\
-        "DOCTOR_MESSAGE": "Everything seems okay.  Some side effects are to be expected",\
-        "EFFECT": SIDE_EFFECT}
-MEDICATED_DEPRESSION = {"INTRO_MESSAGE": "You feel rough",\
-        "LENGTH": 7,\
-        "NEXT_STAGE": MEDICATED,\
-        "CAP": 50,\
-        "HUNGER_DELAY": 4,\
-        "THOUGHTS": SUICIDAL_IDEATION_MINOR,\
-        "THOUGHT_FREQ": 4/24,\
-        "SOCIALIZE_FAILURE": 0.5,\
-        "EAT_FAILURE": 0.2,\
-        "WORK_FAILURE": 0.5,\
-        "LEISURE_FAILURE": 0.2,\
-        "WAKEUP_DELAY": 2,\
-        "DOCTOR_MESSAGE": "Your symptoms haven't been going on long enough.  Come back in a week",\
-        "PSYCHOLOGIST_MESSAGE": "The psychologist says to make sure you are eating, sleeping, and exercising",\
-        "EFFECT": SIDE_EFFECT}
-MANIA = {"INTRO_MESSAGE": "You feel good",\
-        "LENGTH": 7,\
-        "NEXT_STAGE": MEDICATED_DEPRESSION,\
-        "CAP": 200,\
-        "HUNGER_DELAY": 12,\
-        "THOUGHTS": MANIC_THOUGHTS,\
-        "THOUGHT_FREQ": 12/24,\
-        "EAT_FAILURE": 0.5,\
-        "WAGE_MULTIPLIER": 2,\
-        "FOCUS_CHANCE": 0.5,\
-        "LOSS_OF_CONTROL_CHANCE": 0.1,\
-        "ACTIVITIES": ("SHOPPING", "DRIVING", "ART", "MUSIC"),\
-        "SOCIALIZING_EFFECTS": ("DRUNK", "INAPPROPRIATE", "PROMISCUOUS"),\
-        "SOCIALIZING_MULTIPLIER": 2,\
-        "SLEEP_CAP": 4,\
-        "SLEEP_ENERGY": 200,\
-        "SOCIALIZING_CAP": 12,\
-        "GAMING_CAP": 16,\
-        "HOSPTIAL_MESSAGE": "The hosptial changes your medication plan to stabilize your mania",\
-        "HOSPTIAL_STAGE": MEDICATED_DEPRESSION,\
-        "DOCTOR_MESSAGE": "The doctor changes your medication plan to stabilize your mania",\
-        "DOCTOR_STAGE": MEDICATED_DEPRESSION,\
-        "PSYCHOLOGIST_MESSAGE": "The psychologist thinks you are manic and should see a doctor"}
-INITIAL_MEDICATION = {"INTRO_MESSAGE": "You can feel things again",\
-        "LENGTH": 3,\
-        "NEXT_STAGE": MANIA,\
-        "CAP": 80,\
-        "HUNGER_DELAY": 2,\
-        "THOUGHTS": NORMAL_THOUGHTS,\
-        "THOUGHT_FREQ": 2/24,\
-        "SOCIALIZE_FAILURE": 0.1,\
-        "WORK_FAILURE": 0.2,\
-        "LEISURE_FAILURE": 0.1,\
-        "WAKEUP_DELAY": 1,\
-        "DOCTOR_MESSAGE": "Give the medication some time to work",\
-        "EFFECT": SIDE_EFFECT}
-HOSPITALIZED = {"INTRO_MESSAGE": "You are now in the psych ward.  You feel safe.  You have your laptop",\
-        "EXIT_MESSAGE": "You are discharged.  You don't feel ready",\
-        "LENGTH": 2,\
-        "TIME_WARP": 1,\
-        "NEXT_STAGE": INITIAL_MEDICATION,\
-        "CAP": 60,\
-        "HUNGER_DELAY": 2,\
-        "THOUGHTS": HOSPITAL_THOUGHTS,\
-        "THOUGHT_FREQ": 4/24,\
-        "MEAL_TIMES": (7, 12, 18),\
-        "FREE_MEALS": True,\
-        "HOSPITAL_ACTIVITIES": True,\
-        "HOSPITAL_MESSAGE": "You are already in the hosptial",\
-        "DOCTOR_MESSAGE": "The doctor will see you when you are discharged"} 
-DEPRESSION3 = {"INTRO_MESSAGE": "You feel worse than you ever have before",\
-        "LENGTH": 2,\
-        "CAP": 30,\
-        "HUNGER_DELAY": 24,\
-        "THOUGHTS": SUICIDAL_IDEATION_EXTREME,\
-        "THOUGHT_FREQ": 1,\
-        "SOCIALIZE_FAILURE": 1,\
-        "EAT_FAILURE": 0.5,\
-        "WORK_FAILURE": 1,\
-        "LEISURE_FAILURE": 1,\
-        "WAKEUP_DELAY": 4,\
-        "HOSPTIAL_MESSAGE": "You are admitted to the hosptial",\
-        "HOSPTIAL_STAGE": HOSPITALIZED,\
-        "DOCTOR_MESSAGE": "The doctor gets you admitted to the hosptial",\
-        "DOCTOR_STAGE": HOSPITALIZED,\
-        "PSYCHOLOGIST_MESSAGE": "The psychologist gets you admitted to the hospital",\
-        "PSYCHOLOGIST_STAGE": HOSPITALIZED}
-DEPRESSION2 = {"INTRO_MESSAGE": "You feel rough",\
-        "LENGTH": 7,\
-        "TIME_WARP": 6,\
-        "NEXT_STAGE": DEPRESSION3,\
-        "CAP": 40,\
-        "HUNGER_DELAY": 8,\
-        "THOUGHTS": SUICIDAL_IDEATION_MAJOR,\
-        "THOUGHT_FREQ": 12/24,\
-        "SOCIALIZE_FAILURE": 0.8,\
-        "EAT_FAILURE": 0.1,\
-        "WORK_FAILURE": 0.5,\
-        "LEISURE_FAILURE": 0.3,\
-        "WAKEUP_DELAY": 2,\
-        "DOCTOR_MESSAGE": "The doctor puts you on medication for your depression",\
-        "DOCTOR_STAGE": INITIAL_MEDICATION,\
-        "PSYCHOLOGIST_MESSAGE": "The psychologist recommends you call a doctor and make sure you are staying healthy"}
-DEPRESSION1 = {"INTRO_MESSAGE": "You feel a little off",\
-        "LENGTH": 7,\
-        "NEXT_STAGE": DEPRESSION2,\
-        "CAP": 80,\
-        "HUNGER_DELAY": 2,\
-        "THOUGHTS": SUICIDAL_IDEATION_MINOR,\
-        "THOUGHT_FREQ": 1/24,\
-        "SOCIALIZE_FAILURE": 0.2,\
-        "EAT_FAILURE": 0,\
-        "WORK_FAILURE": 0.1,\
-        "LEISURE_FAILURE": 0.1,\
-        "WAKEUP_DELAY": 1,\
-        "DOCTOR_MESSAGE": "Your symptoms haven't been going on for long enough.  Come back in a week",\
-        "PSYCHOLOGIST_MESSAGE": "Make sure you are eating, sleeping, exercising, and staying social"}
-NORMAL = {"LENGTH": 3,\
-        "NEXT_STAGE": DEPRESSION1,\
-        "CAP": 100,\
-        "THOUGHTS": NORMAL_THOUGHTS,\
-        "THOUGHT_FREQ": 1/24}
-
-STAGES = (NORMAL, DEPRESSION1, DEPRESSION2, DEPRESSION3, HOSPITALIZED, INITIAL_MEDICATION, MANIA, MEDICATED, MEDICATED_DEPRESSION)
-for stage in STAGES:
-    if "EFFECT" in stage and "KEYS" in stage["EFFECT"]:
-        for key in stage["EFFECT"]["KEYS"]:
-            if key in stage:
-                stage[key] += stage["EFFECT"]["PENALTY"]
-            else:
-                stage[key] = stage["EFFECT"]["PENALTY"]
 
 class Character:
     def __init__(self):
@@ -297,7 +49,7 @@ class Character:
         self.hours_watched = 0
         self.called_parents = False
         self.called_friend = False
-        self.disease_stage = NORMAL
+        self.disease_stage = stages.NORMAL
         self.disease_days = 0
         self.dead = False
 
@@ -367,7 +119,7 @@ class Character:
         self.last_meal += hours
         self.last_sleep += hours
         self.hours_played += hours
-        if "EFFECT" in self.disease_stage and random.random() < SIDE_EFFECT_FREQ:
+        if "EFFECT" in self.disease_stage and random.random() < stages.SIDE_EFFECT_FREQ:
             messages.append(self.disease_stage["EFFECT"]["MESSAGE"])
         if random.random() < self.disease_stage["THOUGHT_FREQ"] * hours:
             messages.append(random.choice(self.disease_stage["THOUGHTS"]))
@@ -400,7 +152,7 @@ class Character:
             energy -= min(5 * (self.last_sleep - SLEEP_INTERVAL), 20)
         if self.last_exercise > EXERCISE_INTERVAL:
             energy -= min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
-        if "EFFECT" in self.disease_stage and self.disease_stage["EFFECT"] == LOW_ENERGY:
+        if "EFFECT" in self.disease_stage and self.disease_stage["EFFECT"] == stages.LOW_ENERGY:
             energy -= self.disease_stage["EFFECT"]["PENALTY"]
         if energy < 0:
             energy = 0
