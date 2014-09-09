@@ -17,12 +17,14 @@ CLEANING_INTERVAL = 2 #days
 SPEEDING_RISK = 0.2
 ALCOHOL_POISONING_CHANCE = 0.2
 #list of people you can call
-CALL_DICT = {"parents": ("mom", "mother", "dad", "father", "parents"),\
-        "friend": ("friend", "friends"),\
-        "hospital": ("hospital", "police", "ambulance", "911"),\
-        "doctor": ("doctor", "psychiatrist"),\
-        "helpline": ("helpline", "suicide helpline", "hotline", "suicide hotline"),\
-        "psychologist": ("therapist", "councellor", "psychologist")}
+CALL_DICT = {
+        "parents": ("mom", "mother", "dad", "father", "parents"),
+        "friend": ("friend", "friends"),
+        "hospital": ("hospital", "police", "ambulance", "911"),
+        "doctor": ("doctor", "psychiatrist"),
+        "helpline": ("helpline", "suicide helpline", "hotline", "suicide hotline"),
+        "psychologist": ("therapist", "councellor", "psychologist"),
+}
 
 class Character:
     def __init__(self):
