@@ -462,6 +462,9 @@ class Sdabto_Cmd(cmd.Cmd):
                 random.random() < self.character.disease_stage["EAT_FAILURE"]):
             print("You don't feel like eating right now")
             return
+        if self.character.groceries < 1:
+            print("You are out of food.  Try 'shop' to get more")
+            return
         messages = self.character.eat()
         print("You eat a meal")
         for message in messages:
