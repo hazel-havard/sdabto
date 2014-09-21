@@ -164,6 +164,7 @@ class Character:
 
     def clean(self):
         messages = self.add_hours(1)
+        self.change_energy(-5)
         self.last_cleaned = 0
         return messages
 
