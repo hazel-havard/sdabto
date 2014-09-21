@@ -53,6 +53,7 @@ SUICIDAL_IDEATION_MAJOR = (
         "You practice tying hangman's knots",
         "You think about shooting yourself so that the bullet would go into the ground and not hurt anyone else",
         "You wish someone would ask you what was wrong, but realize you probably wouldn't tell them",
+        "You try to figure out the best way to shoot yourself in the head and hit your brainstem",
 )
 SUICIDAL_IDEATION_EXTREME = (
         "You hold a pillow over your head until you pass out to see what suffocating is like",
@@ -63,7 +64,7 @@ SUICIDAL_IDEATION_EXTREME = (
         "You compose an email to the coroner so that no one you know would have to find your body",
         "You pick a spot to swim out into the ocean until you get tired and drown",
         "You put a knife on your bedside table",
-        "You decide to hike out into the wilderness until you died of exposure",
+        "You decide to hike out into the wilderness until you die of exposure",
         "You pick a park to OD in",
         "You lie on the floor for a little while",
 )

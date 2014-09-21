@@ -18,7 +18,7 @@ SPEEDING_RISK = 0.2
 ALCOHOL_POISONING_CHANCE = 0.2
 #list of people you can call
 CALL_DICT = {
-        "parents": ("mom", "mother", "dad", "father", "parents"),
+        "parents": ("mom", "mother", "dad", "father", "parents", "home", "family"),
         "friend": ("friend", "friends"),
         "hospital": ("hospital", "police", "ambulance", "911"),
         "doctor": ("doctor", "psychiatrist"),
