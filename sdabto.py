@@ -1,5 +1,7 @@
 import cmd
 import random
+from weakref import WeakKeyDictionary
+
 import messages
 import stages
 
@@ -26,10 +28,32 @@ CALL_DICT = {
         "psychologist": ("therapist", "councellor", "psychologist"),
 }
 
-class Character:
+class BoundedField(object):
+    """A descriptor for mood and energy fields that supports max values"""
+    def __init__(self, default=None):
+        self.default = default
+        self.data = WeakKeyDictionary()
+
+    def __get__(self, instance, owner):
+        return self.data.get(instance, self.default)
+
+    def __set__(self, instance, value):
+        max = instance.disease_stage["CAP"]
+        if value < 0:
+            value = 0
+        elif value > max:
+            value = max
+        self.data[instance] = value
+
+class Character(object):
+
+    mood = BoundedField()
+    energy = BoundedField()
+
     def __init__(self):
-        self.base_mood = 80
-        self.base_energy = 80
+        self.disease_stage = stages.NORMAL
+        self.mood = 80
+        self.energy = 80
         #In whole numbers of dollars
         self.money = 200
         #in hours
@@ -51,23 +75,8 @@ class Character:
         self.hours_watched = 0
         self.called_parents = False
         self.called_friend = False
-        self.disease_stage = stages.NORMAL
         self.disease_days = 0
         self.dead = False
-
-    def change_mood(self, diff):
-        self.base_mood += diff
-        if self.base_mood < 0:
-            self.base_mood = 0
-        elif self.base_mood > self.disease_stage["CAP"]:
-            self.base_mood = self.disease_stage["CAP"]
-
-    def change_energy(self, diff):
-        self.base_energy += diff
-        if self.base_energy < 0:
-            self.base_energy = 0
-        elif self.base_energy > self.disease_stage["CAP"]:
-            self.base_energy = self.disease_stage["CAP"]
 
     def change_stage(self, stage):
         messages = []
@@ -89,8 +98,9 @@ class Character:
         if "EXIT_MESSAGE" in self.disease_stage:
             messages.append(self.disease_stage["EXIT_MESSAGE"])
         self.disease_stage = stage
-        self.change_energy(0)
-        self.change_mood(0)
+        #reset mood and energy based on new disease caps
+        self.energy += 0
+        self.mood += 0
         self.disease_days = 0
         messages.append(self.disease_stage["INTRO_MESSAGE"])
         return messages
@@ -130,8 +140,8 @@ class Character:
             self.dead = True
         return messages
 
-    def get_mood(self):
-        mood = self.base_mood
+    def display_mood(self):
+        mood = self.mood
         if self.last_meal > MEAL_INTERVAL:
             mood -= min(10 * (self.last_meal - MEAL_INTERVAL), 30)
         if self.last_exercise > EXERCISE_INTERVAL:
@@ -146,8 +156,8 @@ class Character:
             mood = self.disease_stage["CAP"]
         return mood
 
-    def get_energy(self):
-        energy = self.base_energy
+    def display_energy(self):
+        energy = self.energy
         if self.last_meal > MEAL_INTERVAL:
             energy -= min(10 * (self.last_meal - MEAL_INTERVAL), 30)
         if self.last_sleep > SLEEP_INTERVAL:
@@ -164,7 +174,7 @@ class Character:
 
     def clean(self):
         messages = self.add_hours(1)
-        self.change_energy(-5)
+        self.energy -= 5
         self.last_cleaned = 0
         return messages
 
@@ -174,8 +184,8 @@ class Character:
         if "WAGE_MULTIPLIER" in self.disease_stage:
             wages *= self.disease_stage["WAGE_MULTIPLIER"]
         self.money += wages
-        self.change_energy(-5 * hours)
-        self.change_mood(-5 * hours)
+        self.energy -= 5 * hours
+        self.mood -= 5 * hours
         return messages
 
     def sleep(self, hours):
@@ -186,11 +196,11 @@ class Character:
             hours = 8
         self.last_sleep = 0
         if "SLEEP_ENERGY" in self.disease_stage:
-            self.base_energy = min(self.disease_stage["SLEEP_ENERGY"], self.disease_stage["CAP"])
+            self.energy = self.disease_stage["SLEEP_ENERGY"]
             return messages
-        self.base_energy = min((10 * hours), self.disease_stage["CAP"])
+        self.energy = (10 * hours)
         if hours > 6:
-            self.change_energy(20)
+            self.energy += 20
         return messages
 
     def eat(self):
@@ -203,8 +213,8 @@ class Character:
     def exercise(self):
         messages = self.add_hours(1)
         self.last_exercise = 0
-        self.change_mood(5)
-        self.change_energy(-5)
+        self.mood += 5
+        self.energy -= 5
         return messages
 
     def shopping(self):
@@ -222,13 +232,13 @@ class Character:
             daily_cap = self.disease_stage["GAMING_CAP"]
         hours = max(0, min(hours, daily_cap - self.hours_gamed))
         self.hours_gamed += hours
-        self.change_mood(5 * hours)
+        self.mood += 5 * hours
         return messages
 
     def socialize(self, hours):
         messages = self.add_hours(hours)
         self.money -= 10 * hours
-        self.change_energy(-5 * hours)
+        self.energy -= 5 * hours
         daily_cap = 3
         if "SOCIALIZING_CAP" in self.disease_stage:
             daily_cap = self.disease_stage["SOCIALIZING_CAP"]
@@ -237,7 +247,7 @@ class Character:
         mood_bonus = 10 * hours
         if "SOCIALIZING_MULTIPLIER" in self.disease_stage:
             mood_bonus *= self.disease_stage["SOCIALIZING_MULTIPLIER"]
-        self.change_mood(mood_bonus)
+        self.mood += mood_bonus
         self.last_social = 0
         return messages
 
@@ -245,13 +255,13 @@ class Character:
         messages = self.add_hours(1)
         if recipient in CALL_DICT["parents"]:
             if not self.called_parents:
-                self.change_mood(5)
+                self.mood += 5
                 self.called_parents = True
-            if self.get_mood() < 20:
+            if self.display_mood() < 20:
                 messages.append("Your parents notice how rough you're feeling and are worried")
-            elif self.get_mood() < 50:
+            elif self.display_mood() < 50:
                 messages.append("Your parents notice you're feeling down and try to cheer you up")
-            elif self.get_mood() > 150:
+            elif self.display_mood() > 150:
                 messages.append("Your parents can barely understand you.  They are seriously worried about you")
             else:
                 messages.append("You have a lovely chat with your parents")
@@ -260,13 +270,13 @@ class Character:
                 messages.append("Your parents bail you out of your debt.  You feel guilty")
         elif recipient in CALL_DICT["friend"]:
             if not self.called_friend:
-                self.change_mood(5)
+                self.mood += 5
                 self.called_friend = True
-            if self.get_mood() < 20:
+            if self.display_mood() < 20:
                 messages.append("Your friend notices how rough you're feeling and is worried")
-            elif self.get_mood() < 50:
+            elif self.display_mood() < 50:
                 messages.append("Your friend notices you're not very happy and tries to cheer you up")
-            elif self.get_mood() > 150:
+            elif self.display_mood() > 150:
                 messages.append("You seriously freak out your friend, who can barely get a word in edgewise")
             else:
                 messages.append("You have a lovely chat with a friend")
@@ -299,14 +309,14 @@ class Character:
         messages = self.add_hours(hours)
         hours = max(0, min(hours, 4 - self.hours_read))
         self.hours_read += hours
-        self.change_mood(5 * hours)
+        self.mood += 5 * hours
         return messages
 
     def watch(self, hours):
         messages = self.add_hours(hours)
         hours = max(0, min(hours, 4 - self.hours_watched))
         self.hours_watched += hours
-        self.change_mood(5 * hours)
+        self.mood += 5 * hours
         return messages
 
 class Sdabto_Cmd(cmd.Cmd):
@@ -318,8 +328,8 @@ class Sdabto_Cmd(cmd.Cmd):
         self.bad_command = False
 
     def print_status(self):
-        mood = self.character.get_mood()
-        energy = self.character.get_energy()
+        mood = self.character.display_mood()
+        energy = self.character.display_energy()
         day = (self.character.hours_played // 24) + 1
         hour = self.character.hours_played % 24
         print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +\
@@ -443,7 +453,7 @@ class Sdabto_Cmd(cmd.Cmd):
                 random.random() < self.character.disease_stage["WORK_FAILURE"]:
             print("You can't be bothered to clean anything right now")
             return
-        if self.character.get_energy() < 20:
+        if self.character.display_energy() < 20:
             print("You're too tired to face cleaning right now")
             return
         messages = self.character.clean()
@@ -483,7 +493,7 @@ class Sdabto_Cmd(cmd.Cmd):
             print("You sit down to work but end up playing video games instead")
             self.do_game(hours)
             return
-        if self.character.get_energy() < 20:
+        if self.character.display_energy() < 20:
             print("You try to work but your eyes can't focus on the screen.")
             return
         if hours > 8:
@@ -511,7 +521,7 @@ class Sdabto_Cmd(cmd.Cmd):
             print("After 12 hours you wake up.")
             hours = 12
         messages = self.character.sleep(hours)
-        print("You sleep for " + str(hours) + " hours.  Your energy is now " + str(self.character.get_energy()))
+        print("You sleep for " + str(hours) + " hours.  Your energy is now " + str(self.character.display_energy()))
         if "WAKEUP_DELAY" in self.character.disease_stage:
             hour_str = " hours"
             if self.character.disease_stage["WAKEUP_DELAY"] == 1:
@@ -530,7 +540,7 @@ class Sdabto_Cmd(cmd.Cmd):
                 self.character.hours_played % 24 in self.character.disease_stage["MEAL_TIMES"]:
             print("A nurse stops you to tell you it is meal time")
             return
-        if self.character.get_energy() < 20:
+        if self.character.display_energy() < 20:
             print("Contemplating a run makes you feel exhausted.  Maybe tomorrow...")
             return
         print("You go for a run")
@@ -546,7 +556,7 @@ class Sdabto_Cmd(cmd.Cmd):
                 self.character.hours_played % 24 in self.character.disease_stage["MEAL_TIMES"]:
             print("A nurse stops you to tell you it is meal time")
             return
-        if self.character.get_energy() < 10:
+        if self.character.display_energy() < 10:
             print("You're too tired to haul home food.  There must be something in the fridge...")
             return
         if self.character.hours_played % 24 < 8 or self.character.hours_played % 24 > 22:
@@ -572,7 +582,7 @@ class Sdabto_Cmd(cmd.Cmd):
             print("You get in the zone and loose track of time.  You game for 8 hours")
             hours = 8
         messages = self.character.game(hours)
-        print("You play on your computer.  Your mood is now " + str(self.character.get_mood()))
+        print("You play on your computer.  Your mood is now " + str(self.character.display_mood()))
         for message in messages:
             print(message)
 
@@ -581,7 +591,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
             print("You're not allowed outside yet")
             return
-        if self.character.get_energy() < 20:
+        if self.character.display_energy() < 20:
             print("You can't summon the energy to face people right now.  How about a quiet night in?")
             return
         if "SOCIALIZE_FAILURE" in self.character.disease_stage and \
