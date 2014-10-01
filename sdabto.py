@@ -319,6 +319,43 @@ class Character(object):
         self.mood += 5 * hours
         return messages
 
+def get_validate_hour_str(hours):
+    '''Given an int of hours, create the hour string the validate method needs'''
+    hour_str = ""
+    if hours == 1:
+        hour_str = "after 1 hour "
+    elif hours > 1:
+        hour_str = "after " + str(hours) + " hours "
+    return hour_str
+
+def validate_int_arg(f):
+    def wrapper(self, arg):
+        try:
+            hours = int(arg)
+        except ValueError:
+            print("This command requires a number of hours, as in 'sleep 8'")
+            return None
+        if "MEAL_TIMES" in self.character.disease_stage:
+            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][0] and \
+                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][0]:
+                hours = self.character.disease_stage["MEAL_TIMES"][0] - (self.character.hours_played % 24)
+                hour_str = get_validate_hour_str(hours)
+                print("A nurse stops you " + hour_str + "to tell you it is breakfast time")
+            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][1] and \
+                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][1]:
+                hours = self.character.disease_stage["MEAL_TIMES"][1] - (self.character.hours_played % 24)
+                hour_str = get_validate_hour_str(hours)
+                print("A nurse stops you " + hour_str + "to tell you it is lunch time")
+            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][2] and \
+                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][2]:
+                hours = self.character.disease_stage["MEAL_TIMES"][2] - (self.character.hours_played % 24)
+                hour_str = get_validate_hour_str(hours)
+                print("A nurse stops you " + hour_str + "to tell you it is dinner time")
+        if hours == 0:
+            return None
+        f(self, hours)
+    return wrapper
+
 class Sdabto_Cmd(cmd.Cmd):
     prompt = 'What would you like to do? '
 
@@ -397,41 +434,6 @@ class Sdabto_Cmd(cmd.Cmd):
         self.bad_command = False
         return stop
 
-    def get_sanitize_hour_str(self, hours):
-        '''Given an int of hours, create the hour string the sanitize method needs'''
-        hour_str = ""
-        if hours == 1:
-            hour_str = "after 1 hour "
-        elif hours > 1:
-            hour_str = "after " + str(hours) + " hours "
-        return hour_str
-
-    def sanitize(self, arg):
-        try:
-            hours = int(arg)
-        except ValueError:
-            print("This command requires a number of hours, as in 'sleep 8'")
-            return None
-        if "MEAL_TIMES" in self.character.disease_stage:
-            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][0] and \
-                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][0]:
-                hours = self.character.disease_stage["MEAL_TIMES"][0] - (self.character.hours_played % 24)
-                hour_str = self.get_sanitize_hour_str(hours)
-                print("A nurse stops you " + hour_str + "to tell you it is breakfast time")
-            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][1] and \
-                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][1]:
-                hours = self.character.disease_stage["MEAL_TIMES"][1] - (self.character.hours_played % 24)
-                hour_str = self.get_sanitize_hour_str(hours)
-                print("A nurse stops you " + hour_str + "to tell you it is lunch time")
-            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][2] and \
-                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][2]:
-                hours = self.character.disease_stage["MEAL_TIMES"][2] - (self.character.hours_played % 24)
-                hour_str = self.get_sanitize_hour_str(hours)
-                print("A nurse stops you " + hour_str + "to tell you it is dinner time")
-        if hours == 0:
-            return None
-        return hours
-
     def do_eval(self, arg):
         '''for debugging only'''
         eval(arg)
@@ -480,11 +482,9 @@ class Sdabto_Cmd(cmd.Cmd):
         for message in messages:
             print(message)
 
-    def do_work(self, arg):
+    @validate_int_arg
+    def do_work(self, hours):
         '''Work to gain money.  Please supply a number of hours, as in 'work 4' '''
-        hours = self.sanitize(arg)
-        if hours is None:
-            return
         if "HOSPITAL_ACTIVITIES" in self.character.disease_stage:
             print("Your doctor doesn't want you to work while you're in the hospital")
             return
@@ -508,11 +508,9 @@ class Sdabto_Cmd(cmd.Cmd):
         for message in messages:
             print(message)
 
-    def do_sleep(self, arg):
+    @validate_int_arg
+    def do_sleep(self, hours):
         '''Sleep to get your energy back.  Please supply a number of hours, as in 'sleep 8' '''
-        hours = self.sanitize(arg)
-        if hours is None:
-            return
         if "SLEEP_CAP" in self.character.disease_stage:
             if hours > self.character.disease_stage["SLEEP_CAP"]:
                 print("You can't sleep.  You wake up early feeling fully rested")
@@ -569,11 +567,9 @@ class Sdabto_Cmd(cmd.Cmd):
             for message in self.character.shopping():
                 print(message)
 
-    def do_game(self, arg):
+    @validate_int_arg
+    def do_game(self, hours):
         '''Play video games.  Please supply a number of hours, as in 'game 1' '''
-        hours = self.sanitize(arg)
-        if hours is None:
-            return
         if hours > 8:
             print("After 8 hours you lose interest")
             hours = 8
@@ -586,7 +582,8 @@ class Sdabto_Cmd(cmd.Cmd):
         for message in messages:
             print(message)
 
-    def do_socialize(self, arg):
+    @validate_int_arg
+    def do_socialize(self, hours):
         '''Go out with friends.  Please supply a number of hours, as in 'socialize 2' '''
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
             print("You're not allowed outside yet")
@@ -597,9 +594,6 @@ class Sdabto_Cmd(cmd.Cmd):
         if "SOCIALIZE_FAILURE" in self.character.disease_stage and \
                 random.random() < self.character.disease_stage["SOCIALIZE_FAILURE"]:
             print("You get too anxious thinking about people right now.  How about a quiet night in?")
-            return
-        hours = self.sanitize(arg)
-        if hours is None:
             return
         if hours > 6:
             print("None of your friends are free for more than 6 hours")
@@ -642,11 +636,9 @@ class Sdabto_Cmd(cmd.Cmd):
         for message in self.character.call(arg):
             print(message)
 
-    def do_read(self, arg):
+    @validate_int_arg
+    def do_read(self, hours):
         '''Read a book.  Please supply a number of hours, as in 'read 4' '''
-        hours = self.sanitize(arg)
-        if hours is None:
-            return
         if "LEISURE_FAILURE" in self.character.disease_stage and \
                 random.random() < self.character.disease_stage["LEISURE_FAILURE"]:
             print("You try to read but the words swim on the page")
@@ -659,6 +651,18 @@ class Sdabto_Cmd(cmd.Cmd):
         for message in messages:
             print(message)
 
+    @validate_int_arg
+    def watch(self, hours):
+        if "LEISURE_FAILURE" in self.character.disease_stage and \
+                random.random() < self.character.disease_stage["LEISURE_FAILURE"]:
+            print("You try to watch something but you can't stay focused on the plot")
+            return
+        if hours > 4:
+            hours = 4
+            print("After 4 hours you lose interest")
+        messages = self.character.watch(hours)
+        return messages
+
     def do_watch(self, arg):
         '''Watch tv or a movie for a number of hours, as in 'watch movie 4' '''
         args = arg.split()
@@ -668,17 +672,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if args[0] != "tv" and args[0] != "movie":
             print("You can watch tv or movies, as in 'watch movie 4'")
             return
-        hours = self.sanitize(args[1])
-        if hours is None:
-            return
-        if "LEISURE_FAILURE" in self.character.disease_stage and \
-                random.random() < self.character.disease_stage["LEISURE_FAILURE"]:
-            print("You try to watch something but you can't stay focused on the plot")
-            return
-        if hours > 4:
-            hours = 4
-            print("After 4 hours you lose interest")
-        messages = self.character.watch(hours)
+        messages = self.watch(args[1])
         article = ""
         if args[0] == "movie":
             article = "a "
