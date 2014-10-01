@@ -127,7 +127,7 @@ class Character(object):
                 messages.extend(self.change_stage(self.disease_stage["NEXT_STAGE"]))
             if ((self.hours_played + hours) // 24) % 7 == 0:
                 self.money -= RENT
-                messages.append("Rent and bills deducted.  You now have $" + str(self.money))
+                messages.append("Rent and bills due. $" + str(RENT) + " deducted")
         self.last_meal += hours
         self.last_sleep += hours
         self.hours_played += hours
@@ -517,7 +517,7 @@ class Sdabto_Cmd(cmd.Cmd):
             print("You get in the zone and loose track of time.  You work for 8 hours")
             hours = 8
         messages = self.character.work(hours)
-        print("You go to your computer and work.  You now have $" + str(self.character.money))
+        print("You go to your computer and work.  You gain $" + str(10 * hours))
         for message in messages:
             print(message)
 
@@ -628,9 +628,9 @@ class Sdabto_Cmd(cmd.Cmd):
             elif effect == "PROMISCUOUS":
                 print("You hook up with someone you just met")
         messages = self.character.socialize(hours)
-        print("You hang out with friends.  You now have $" + str(self.character.money))
         for message in messages:
             print(message)
+        print("You hang out with friends.  You spend $" + str(10 * hours))
 
     def do_call(self, arg):
         '''Call someone on the phone, as in 'call mom' '''
