@@ -34,7 +34,9 @@ SIDE_EFFECT_FREQ = 2/24
 #Must have LENGTH, CAP, THOUGHTS, & THOUGHT_FREQ
 MEDICATED_DEPRESSION = {}
 MEDICATED = {
-        "INTRO_MESSAGE": "You can feel things again",
+        "INTRO_MESSAGE": "You can feel things again\n"
+            "Good work surviving that ordeal\n"
+            "You can carry on to experience living with medication, or exit at any time",
         "LENGTH": 21,
         "NEXT_STAGE": MEDICATED_DEPRESSION,
         "CAP": 100,
