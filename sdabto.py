@@ -414,7 +414,7 @@ class Sdabto_Cmd(cmd.Cmd):
         self.bad_command = True
 
     def precmd(self, line):
-        if line.startswith("eval"):
+        if line.startswith("exec"):
             return line
         return line.lower()
 
@@ -447,9 +447,9 @@ class Sdabto_Cmd(cmd.Cmd):
         self.bad_command = False
         return stop
 
-    def do_eval(self, arg):
+    def do_exec(self, arg):
         '''for debugging only'''
-        eval(arg)
+        exec(arg)
 
     def do_exit(self, arg):
         '''Exit the program'''
