@@ -394,6 +394,15 @@ class Sdabto_Cmd(cmd.Cmd):
         self.print_status()
 
     def postloop(self):
+        print()
+        print("This game was based on my own experiences")
+        print("All the thoughts are thoughts I've had,")
+        print("and all the situations are based on things I've experienced")
+        print("This may be different from your experiences with mental illness")
+        print("I don't mean to imply that this is everyone's reality,")
+        print("but I wanted to give you a glimpse of mine")
+        print("Thanks for playing along")
+        print()
         print("Goodbye")
 
     def default(self, line):
