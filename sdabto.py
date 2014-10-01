@@ -334,6 +334,7 @@ def validate_int_arg(f):
             hours = int(arg)
         except ValueError:
             print("This command requires a number of hours, as in 'sleep 8'")
+            self.bad_command = True
             return None
         if "MEAL_TIMES" in self.character.disease_stage:
             if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][0] and \
@@ -352,6 +353,7 @@ def validate_int_arg(f):
                 hour_str = get_validate_hour_str(hours)
                 print("A nurse stops you " + hour_str + "to tell you it is dinner time")
         if hours == 0:
+            self.bad_command = True
             return None
         f(self, hours)
     return wrapper
