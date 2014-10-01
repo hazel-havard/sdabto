@@ -389,6 +389,8 @@ class Sdabto_Cmd(cmd.Cmd):
     def preloop(self):
         print("Welcome to Some Days Are Better Than Others")
         print("Trigger Warning: Suicide")
+        print()
+        print("Save up money for university!")
         print("Type 'help' of '?' for some ideas of what to do")
         print()
         self.print_status()
