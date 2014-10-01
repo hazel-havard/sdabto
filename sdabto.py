@@ -428,7 +428,7 @@ class Sdabto_Cmd(cmd.Cmd):
                 activity = random.choice(self.character.disease_stage["ACTIVITIES"])
                 if activity == "SHOPPING":
                     print("You go shopping and spend all of your money on home furnishings")
-                    self.character.money = -200
+                    self.character.money -= 500
                 elif activity == "DRIVING":
                     print("You rent a car and go for a drive.  You find yourself driving much too fast")
                     if random.random() < SPEEDING_RISK:
