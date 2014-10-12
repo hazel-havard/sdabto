@@ -165,7 +165,7 @@ class Character(object):
             energy -= min(5 * (self.last_sleep - SLEEP_INTERVAL), 20)
         if self.last_exercise > EXERCISE_INTERVAL:
             energy -= min(5 * (self.last_exercise - EXERCISE_INTERVAL), 20)
-        if "EFFECT" in self.disease_stage and self.disease_stage["EFFECT"] == stages.LOW_ENERGY:
+        if self.disease_stage.get("EFFECT", None) == stages.LOW_ENERGY:
             energy -= self.disease_stage["EFFECT"]["PENALTY"]
         if energy < 0:
             energy = 0
@@ -425,8 +425,7 @@ class Sdabto_Cmd(cmd.Cmd):
             print("You have died.  Game over")
             return True
         if not stop and not line.startswith("help") and not line.startswith("?") and not self.bad_command:
-            if "LOSS_OF_CONTROL_CHANCE" in self.character.disease_stage and \
-                    random.random() < self.character.disease_stage["LOSS_OF_CONTROL_CHANCE"]:
+            if random.random() < self.character.disease_stage.get("LOSS_OF_CONTROL_CHANCE", 0):
                 print("You lose control for about 8 hours")
                 messages = self.character.add_hours(8)
                 activity = random.choice(self.character.disease_stage["ACTIVITIES"])
@@ -466,8 +465,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if "HOSPITAL_ACTIVITIES" in self.character.disease_stage:
             print("You're not at home right now")
             return
-        if "WORK_FAILURE" in self.character.disease_stage and \
-                random.random() < self.character.disease_stage["WORK_FAILURE"]:
+        if random.random() < self.character.disease_stage.get("WORK_FAILURE", 0):
             print("You can't be bothered to clean anything right now")
             return
         if self.character.display_energy() < 20:
@@ -480,13 +478,11 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_eat(self, arg):
         '''Eat a meal'''
-        if "MEAL_TIMES" in self.character.disease_stage and \
-                self.character.hours_played % 24 not in self.character.disease_stage["MEAL_TIMES"]:
+        if self.character.hours_played % 24 not in self.character.disease_stage.get("MEAL_TIMES", range(24)):
             print("It is not meal time yet")
             return
         if self.character.last_meal < 4 or \
-                ("EAT_FAILURE" in self.character.disease_stage and \
-                random.random() < self.character.disease_stage["EAT_FAILURE"]):
+                random.random() < self.character.disease_stage.get("EAT_FAILURE", 0):
             print("You don't feel like eating right now")
             return
         if self.character.groceries < 1:
@@ -503,8 +499,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if "HOSPITAL_ACTIVITIES" in self.character.disease_stage:
             print("Your doctor doesn't want you to work while you're in the hospital")
             return
-        if "WORK_FAILURE" in self.character.disease_stage and \
-                random.random() < self.character.disease_stage["WORK_FAILURE"]:
+        if random.random() < self.character.disease_stage.get("WORK_FAILURE", 0):
             print("You sit down to work but end up playing video games instead")
             self.do_game(hours)
             return
@@ -514,8 +509,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if hours > 8:
             print("After 8 hours your mind starts to wander...")
             hours = 8
-        if "FOCUS_CHANCE" in self.character.disease_stage and \
-                random.random() < self.character.disease_stage["FOCUS_CHANCE"]:
+        if random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
             print("You get in the zone and loose track of time.  You work for 8 hours")
             hours = 8
         messages = self.character.work(hours)
@@ -549,10 +543,6 @@ class Sdabto_Cmd(cmd.Cmd):
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
             print("You're not allowed outside yet")
             return
-        if "MEAL_TIMES" in self.character.disease_stage and \
-                self.character.hours_played % 24 in self.character.disease_stage["MEAL_TIMES"]:
-            print("A nurse stops you to tell you it is meal time")
-            return
         if self.character.display_energy() < 20:
             print("Contemplating a run makes you feel exhausted.  Maybe tomorrow...")
             return
@@ -564,10 +554,6 @@ class Sdabto_Cmd(cmd.Cmd):
         '''Buy more groceries'''
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
             print("You're not allowed outside yet")
-            return
-        if "MEAL_TIMES" in self.character.disease_stage and \
-                self.character.hours_played % 24 in self.character.disease_stage["MEAL_TIMES"]:
-            print("A nurse stops you to tell you it is meal time")
             return
         if self.character.display_energy() < 10:
             print("You're too tired to haul home food.  There must be something in the fridge...")
@@ -588,8 +574,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if hours > 8:
             print("After 8 hours you lose interest")
             hours = 8
-        if "FOCUS_CHANCE" in self.character.disease_stage and \
-                random.random() < self.character.disease_stage["FOCUS_CHANCE"]:
+        if random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
             print("You get in the zone and loose track of time.  You game for 8 hours")
             hours = 8
         messages = self.character.game(hours)
@@ -606,15 +591,13 @@ class Sdabto_Cmd(cmd.Cmd):
         if self.character.display_energy() < 20:
             print("You can't summon the energy to face people right now.  How about a quiet night in?")
             return
-        if "SOCIALIZE_FAILURE" in self.character.disease_stage and \
-                random.random() < self.character.disease_stage["SOCIALIZE_FAILURE"]:
+        if random.random() < self.character.disease_stage.get("SOCIALIZE_FAILURE", 0):
             print("You get too anxious thinking about people right now.  How about a quiet night in?")
             return
         if hours > 6:
             print("None of your friends are free for more than 6 hours")
             hours = 6
-        if "FOCUS_CHANCE" in self.character.disease_stage and \
-                random.random() < self.character.disease_stage["FOCUS_CHANCE"]:
+        if random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
             print("You lose track of time and stay out for 6 hours")
             hours = 6
             effect = random.choice(self.character.disease_stage["SOCIALIZING_EFFECTS"])
@@ -636,10 +619,6 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_call(self, arg):
         '''Call someone on the phone, as in 'call mom' '''
-        if "MEAL_TIMES" in self.character.disease_stage and \
-                self.character.hours_played % 24 in self.character.disease_stage["MEAL_TIMES"]:
-            print("A nurse stops you to tell you it is meal time")
-            return
         caller_known = False
         for key, synonym_list in CALL_DICT.items():
             if arg in synonym_list:
@@ -654,8 +633,7 @@ class Sdabto_Cmd(cmd.Cmd):
     @validate_int_arg
     def do_read(self, hours):
         '''Read a book.  Please supply a number of hours, as in 'read 4' '''
-        if "LEISURE_FAILURE" in self.character.disease_stage and \
-                random.random() < self.character.disease_stage["LEISURE_FAILURE"]:
+        if random.random() < self.character.disease_stage.get("LEISURE_FAILURE", 0):
             print("You try to read but the words swim on the page")
             return
         if hours > 4:
@@ -668,8 +646,7 @@ class Sdabto_Cmd(cmd.Cmd):
 
     @validate_int_arg
     def watch(self, hours):
-        if "LEISURE_FAILURE" in self.character.disease_stage and \
-                random.random() < self.character.disease_stage["LEISURE_FAILURE"]:
+        if random.random() < self.character.disease_stage.get("LEISURE_FAILURE", 0):
             print("You try to watch something but you can't stay focused on the plot")
             return
         if hours > 4:
