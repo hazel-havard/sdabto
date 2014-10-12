@@ -1,4 +1,5 @@
 import cmd
+from functools import wraps
 import random
 from weakref import WeakKeyDictionary
 
@@ -329,6 +330,7 @@ def get_validate_hour_str(hours):
     return hour_str
 
 def validate_int_arg(f):
+    @wraps(f)
     def wrapper(self, arg):
         try:
             hours = int(arg)
