@@ -339,18 +339,18 @@ def validate_int_arg(f):
             self.bad_command = True
             return None
         if "MEAL_TIMES" in self.character.disease_stage:
-            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][0] and \
-                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][0]:
+            if (self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][0] and
+                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][0]):
                 hours = self.character.disease_stage["MEAL_TIMES"][0] - (self.character.hours_played % 24)
                 hour_str = get_validate_hour_str(hours)
                 print("A nurse stops you " + hour_str + "to tell you it is breakfast time")
-            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][1] and \
-                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][1]:
+            if (self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][1] and
+                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][1]):
                 hours = self.character.disease_stage["MEAL_TIMES"][1] - (self.character.hours_played % 24)
                 hour_str = get_validate_hour_str(hours)
                 print("A nurse stops you " + hour_str + "to tell you it is lunch time")
-            if self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][2] and \
-                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][2]:
+            if (self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][2] and
+                    (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][2]):
                 hours = self.character.disease_stage["MEAL_TIMES"][2] - (self.character.hours_played % 24)
                 hour_str = get_validate_hour_str(hours)
                 print("A nurse stops you " + hour_str + "to tell you it is dinner time")
@@ -373,8 +373,8 @@ class Sdabto_Cmd(cmd.Cmd):
         energy = self.character.display_energy()
         day = (self.character.hours_played // 24) + 1
         hour = self.character.hours_played % 24
-        print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +\
-                " Energy: " + str(energy) + " Money: $" + str(self.character.money) +\
+        print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +
+                " Energy: " + str(energy) + " Money: $" + str(self.character.money) +
                 " Food: " + str(self.character.groceries) + " meals")
         hunger_time = MEAL_INTERVAL
         if "HUNGER_DELAY" in self.character.disease_stage:
@@ -481,8 +481,8 @@ class Sdabto_Cmd(cmd.Cmd):
         if self.character.hours_played % 24 not in self.character.disease_stage.get("MEAL_TIMES", range(24)):
             print("It is not meal time yet")
             return
-        if self.character.last_meal < 4 or \
-                random.random() < self.character.disease_stage.get("EAT_FAILURE", 0):
+        if (self.character.last_meal < 4 or
+                random.random() < self.character.disease_stage.get("EAT_FAILURE", 0)):
             print("You don't feel like eating right now")
             return
         if self.character.groceries < 1:
