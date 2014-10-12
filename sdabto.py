@@ -321,7 +321,7 @@ class Character(object):
         return messages
 
 def get_validate_hour_str(hours):
-    '''Given an int of hours, create the hour string the validate method needs'''
+    """Given an int of hours, create the hour string the validate method needs"""
     hour_str = ""
     if hours == 1:
         hour_str = "after 1 hour "
@@ -449,19 +449,19 @@ class Sdabto_Cmd(cmd.Cmd):
         return stop
 
     def do_exec(self, arg):
-        '''for debugging only'''
+        """for debugging only"""
         exec(arg)
 
     def do_exit(self, arg):
-        '''Exit the program'''
+        """Exit the program"""
         return True
 
     def do_quit(self, arg):
-        '''Exit the program'''
+        """Exit the program"""
         return True
 
     def do_clean(self, arg):
-        '''Clean your house'''
+        """Clean your house"""
         if "HOSPITAL_ACTIVITIES" in self.character.disease_stage:
             print("You're not at home right now")
             return
@@ -477,7 +477,7 @@ class Sdabto_Cmd(cmd.Cmd):
             print(message)
 
     def do_eat(self, arg):
-        '''Eat a meal'''
+        """Eat a meal"""
         if self.character.hours_played % 24 not in self.character.disease_stage.get("MEAL_TIMES", range(24)):
             print("It is not meal time yet")
             return
@@ -495,7 +495,7 @@ class Sdabto_Cmd(cmd.Cmd):
 
     @validate_int_arg
     def do_work(self, hours):
-        '''Work to gain money.  Please supply a number of hours, as in 'work 4' '''
+        """Work to gain money.  Please supply a number of hours, as in 'work 4' """
         if "HOSPITAL_ACTIVITIES" in self.character.disease_stage:
             print("Your doctor doesn't want you to work while you're in the hospital")
             return
@@ -519,7 +519,7 @@ class Sdabto_Cmd(cmd.Cmd):
 
     @validate_int_arg
     def do_sleep(self, hours):
-        '''Sleep to get your energy back.  Please supply a number of hours, as in 'sleep 8' '''
+        """Sleep to get your energy back.  Please supply a number of hours, as in 'sleep 8' """
         if "SLEEP_CAP" in self.character.disease_stage:
             if hours > self.character.disease_stage["SLEEP_CAP"]:
                 print("You can't sleep.  You wake up early feeling fully rested")
@@ -539,7 +539,7 @@ class Sdabto_Cmd(cmd.Cmd):
             print(message)
 
     def do_exercise(self, arg):
-        '''Go for a run'''
+        """Go for a run"""
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
             print("You're not allowed outside yet")
             return
@@ -551,7 +551,7 @@ class Sdabto_Cmd(cmd.Cmd):
             print(message)
 
     def do_shop(self, arg):
-        '''Buy more groceries'''
+        """Buy more groceries"""
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
             print("You're not allowed outside yet")
             return
@@ -570,7 +570,7 @@ class Sdabto_Cmd(cmd.Cmd):
 
     @validate_int_arg
     def do_game(self, hours):
-        '''Play video games.  Please supply a number of hours, as in 'game 1' '''
+        """Play video games.  Please supply a number of hours, as in 'game 1' """
         if hours > 8:
             print("After 8 hours you lose interest")
             hours = 8
@@ -584,7 +584,7 @@ class Sdabto_Cmd(cmd.Cmd):
 
     @validate_int_arg
     def do_socialize(self, hours):
-        '''Go out with friends.  Please supply a number of hours, as in 'socialize 2' '''
+        """Go out with friends.  Please supply a number of hours, as in 'socialize 2' """
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
             print("You're not allowed outside yet")
             return
@@ -618,7 +618,7 @@ class Sdabto_Cmd(cmd.Cmd):
         print("You hang out with friends.  You spend $" + str(10 * hours))
 
     def do_call(self, arg):
-        '''Call someone on the phone, as in 'call mom' '''
+        """Call someone on the phone, as in 'call mom' """
         caller_known = False
         for key, synonym_list in CALL_DICT.items():
             if arg in synonym_list:
@@ -632,7 +632,7 @@ class Sdabto_Cmd(cmd.Cmd):
 
     @validate_int_arg
     def do_read(self, hours):
-        '''Read a book.  Please supply a number of hours, as in 'read 4' '''
+        """Read a book.  Please supply a number of hours, as in 'read 4' """
         if random.random() < self.character.disease_stage.get("LEISURE_FAILURE", 0):
             print("You try to read but the words swim on the page")
             return
@@ -656,7 +656,7 @@ class Sdabto_Cmd(cmd.Cmd):
         return messages
 
     def do_watch(self, arg):
-        '''Watch tv or a movie for a number of hours, as in 'watch movie 4' '''
+        """Watch tv or a movie for a number of hours, as in 'watch movie 4' """
         args = arg.split()
         if len(args) < 2:
             print("Please pick tv or movie and give a number of hours, as in 'watch movie 4'")
