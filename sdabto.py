@@ -543,6 +543,9 @@ class Sdabto_Cmd(cmd.Cmd):
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
             print("You're not allowed outside yet")
             return
+        if self.character.hours_played % 24 in self.character.disease_stage.get("MEAL_TIMES", []):
+            print("A nurse stops you to tell you it is meal time")
+            return
         if self.character.display_energy() < 20:
             print("Contemplating a run makes you feel exhausted.  Maybe tomorrow...")
             return
@@ -554,6 +557,9 @@ class Sdabto_Cmd(cmd.Cmd):
         """Buy more groceries"""
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
             print("You're not allowed outside yet")
+            return
+        if self.character.hours_played % 24 in self.character.disease_stage.get("MEAL_TIMES", []):
+            print("A nurse stops you to tell you it is meal time")
             return
         if self.character.display_energy() < 10:
             print("You're too tired to haul home food.  There must be something in the fridge...")
@@ -619,6 +625,9 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def do_call(self, arg):
         """Call someone on the phone, as in 'call mom' """
+        if self.character.hours_played % 24 in self.character.disease_stage.get("MEAL_TIMES", []):
+            print("A nurse stops you to tell you it is meal time")
+            return
         caller_known = False
         for key, synonym_list in CALL_DICT.items():
             if arg in synonym_list:
