@@ -357,7 +357,7 @@ def validate_int_arg(f):
         if hours == 0:
             self.bad_command = True
             return None
-        f(self, hours)
+        return f(self, hours)
     return wrapper
 
 class Sdabto_Cmd(cmd.Cmd):
@@ -395,7 +395,7 @@ class Sdabto_Cmd(cmd.Cmd):
         print("Trigger Warning: Suicide")
         print()
         print("Save up money for university!")
-        print("Type 'help' of '?' for some ideas of what to do")
+        print("Type 'help' or '?' for some ideas of what to do")
         print()
         self.print_status()
 
