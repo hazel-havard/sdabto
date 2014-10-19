@@ -520,7 +520,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if hours > 8:
             print("\tAfter 8 hours your mind starts to wander...")
             hours = 8
-        if random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
+        elif random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
             print("\tYou get in the zone and loose track of time.  You work for 8 hours")
             hours = 8
         messages = self.character.work(hours)
@@ -593,7 +593,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if hours > 8:
             print("\tAfter 8 hours you lose interest")
             hours = 8
-        if random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
+        elif random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
             print("\tYou get in the zone and loose track of time.  You game for 8 hours")
             hours = 8
         messages = self.character.game(hours)
@@ -616,7 +616,7 @@ class Sdabto_Cmd(cmd.Cmd):
         if hours > 6:
             print("\tNone of your friends are free for more than 6 hours")
             hours = 6
-        if random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
+        elif random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
             print("\tYou lose track of time and stay out for 6 hours")
             hours = 6
             effect = random.choice(self.character.disease_stage["SOCIALIZING_EFFECTS"])
