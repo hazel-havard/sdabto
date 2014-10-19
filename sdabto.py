@@ -674,6 +674,8 @@ class Sdabto_Cmd(cmd.Cmd):
             print("You can watch tv or movies, as in 'watch movie 4'")
             return
         messages = self.watch(args[1])
+        if messages is None:
+            return
         article = ""
         if args[0] == "movie":
             article = "a "
