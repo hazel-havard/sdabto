@@ -338,6 +338,10 @@ def validate_int_arg(f):
             print("This command requires a number of hours, as in 'sleep 8'")
             self.bad_command = True
             return None
+        if hours <= 0:
+            print("This command requires a positive number of hours, as in 'sleep 8'")
+            self.bad_command = True
+            return None
         if "MEAL_TIMES" in self.character.disease_stage:
             if (self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][0] and
                     (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][0]):
