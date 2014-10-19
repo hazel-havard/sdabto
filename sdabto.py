@@ -335,11 +335,11 @@ def validate_int_arg(f):
         try:
             hours = int(arg)
         except ValueError:
-            print("This command requires a number of hours, as in 'sleep 8'")
+            print("\tThis command requires a number of hours, as in 'sleep 8'")
             self.bad_command = True
             return None
         if hours <= 0:
-            print("This command requires a positive number of hours, as in 'sleep 8'")
+            print("\tThis command requires a positive number of hours, as in 'sleep 8'")
             self.bad_command = True
             return None
         if "MEAL_TIMES" in self.character.disease_stage:
@@ -347,17 +347,17 @@ def validate_int_arg(f):
                     (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][0]):
                 hours = self.character.disease_stage["MEAL_TIMES"][0] - (self.character.hours_played % 24)
                 hour_str = get_validate_hour_str(hours)
-                print("A nurse stops you " + hour_str + "to tell you it is breakfast time")
+                print("\tA nurse stops you " + hour_str + "to tell you it is breakfast time")
             if (self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][1] and
                     (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][1]):
                 hours = self.character.disease_stage["MEAL_TIMES"][1] - (self.character.hours_played % 24)
                 hour_str = get_validate_hour_str(hours)
-                print("A nurse stops you " + hour_str + "to tell you it is lunch time")
+                print("\tA nurse stops you " + hour_str + "to tell you it is lunch time")
             if (self.character.hours_played % 24 <= self.character.disease_stage["MEAL_TIMES"][2] and
                     (self.character.hours_played % 24) + hours > self.character.disease_stage["MEAL_TIMES"][2]):
                 hours = self.character.disease_stage["MEAL_TIMES"][2] - (self.character.hours_played % 24)
                 hour_str = get_validate_hour_str(hours)
-                print("A nurse stops you " + hour_str + "to tell you it is dinner time")
+                print("\tA nurse stops you " + hour_str + "to tell you it is dinner time")
         if hours == 0:
             self.bad_command = True
             return None
@@ -373,6 +373,23 @@ class Sdabto_Cmd(cmd.Cmd):
         self.bad_command = False
 
     def print_status(self):
+        messages = []
+        hunger_time = MEAL_INTERVAL
+        if "HUNGER_DELAY" in self.character.disease_stage:
+            hunger_time += self.character.disease_stage["HUNGER_DELAY"]
+        if self.character.last_meal > hunger_time:
+            messages.append("You feel hungry")
+        if self.character.last_sleep > SLEEP_INTERVAL:
+            messages.append("You feel sleepy")
+        if self.character.last_exercise > EXERCISE_INTERVAL:
+            messages.append("You feel lethargic")
+        if self.character.last_social > SOCIAL_INTERVAL:
+            messages.append("You feel lonely")
+        if self.character.last_cleaned > CLEANING_INTERVAL:
+            messages.append("Your house is a mess")
+        for message in messages:
+            print("\t" + message)
+        print()
         mood = self.character.display_mood()
         energy = self.character.display_energy()
         day = (self.character.hours_played // 24) + 1
@@ -380,19 +397,6 @@ class Sdabto_Cmd(cmd.Cmd):
         print("Day: " + str(day) + " Hour: " + str(hour) + " Mood: " + str(mood) +
                 " Energy: " + str(energy) + " Money: $" + str(self.character.money) +
                 " Food: " + str(self.character.groceries) + " meals")
-        hunger_time = MEAL_INTERVAL
-        if "HUNGER_DELAY" in self.character.disease_stage:
-            hunger_time += self.character.disease_stage["HUNGER_DELAY"]
-        if self.character.last_meal > hunger_time:
-            print("You feel hungry")
-        if self.character.last_sleep > SLEEP_INTERVAL:
-            print("You feel sleepy")
-        if self.character.last_exercise > EXERCISE_INTERVAL:
-            print("You feel lethargic")
-        if self.character.last_social > SOCIAL_INTERVAL:
-            print("You feel lonely")
-        if self.character.last_cleaned > CLEANING_INTERVAL:
-            print("Your house is a mess")
 
     def preloop(self):
         print("Welcome to Some Days Are Better Than Others")
@@ -416,7 +420,7 @@ class Sdabto_Cmd(cmd.Cmd):
         print("Goodbye")
 
     def default(self, line):
-        print("Sorry, that command is not recognized.  Try 'help' or '?' for suggestions")
+        print("\tSorry, that command is not recognized.  Try 'help' or '?' for suggestions")
         self.bad_command = True
 
     def precmd(self, line):
@@ -426,29 +430,32 @@ class Sdabto_Cmd(cmd.Cmd):
 
     def postcmd(self, stop, line):
         if self.character.dead:
+            print()
             print("You have died.  Game over")
             return True
         if not stop and not line.startswith("help") and not line.startswith("?") and not self.bad_command:
             if random.random() < self.character.disease_stage.get("LOSS_OF_CONTROL_CHANCE", 0):
-                print("You lose control for about 8 hours")
+                print("\tYou lose control for about 8 hours")
                 messages = self.character.add_hours(8)
                 activity = random.choice(self.character.disease_stage["ACTIVITIES"])
                 if activity == "SHOPPING":
-                    print("You go shopping and spend all of your money on home furnishings")
+                    messages.append("You go shopping and spend all of your money on home furnishings")
                     self.character.money -= 500
                 elif activity == "DRIVING":
-                    print("You rent a car and go for a drive.  You find yourself driving much too fast")
+                    messages.append("You rent a car and go for a drive.  You find yourself driving much too fast")
                     if random.random() < SPEEDING_RISK:
-                        print("You get into a terrible car accident.  You and the other driver are both killed")
-                        print("Game over")
+                        messages.append("You get into a terrible car accident.  You and the other driver are both killed")
+                        messages.append("Game over")
                         self.character.dead = True
                         return True
                 elif activity == "ART":
-                    print("You start creating a gorgeous calligraphy project")
+                    messages.append("You start creating a gorgeous calligraphy project")
                 elif activity == "MUSIC":
-                    print("You find yourself thinking in rhymes and start writing songs")
+                    messages.append("You find yourself thinking in rhymes and start writing songs")
+                for message in messages:
+                    print('\t' + message)
             self.print_status()
-            print()
+        print()
         self.bad_command = False
         return stop
 
@@ -467,170 +474,172 @@ class Sdabto_Cmd(cmd.Cmd):
     def do_clean(self, arg):
         """Clean your house"""
         if "HOSPITAL_ACTIVITIES" in self.character.disease_stage:
-            print("You're not at home right now")
+            print("\tYou're not at home right now")
             return
         if random.random() < self.character.disease_stage.get("WORK_FAILURE", 0):
-            print("You can't be bothered to clean anything right now")
+            print("\tYou can't be bothered to clean anything right now")
             return
         if self.character.display_energy() < 20:
-            print("You're too tired to face cleaning right now")
+            print("\tYou're too tired to face cleaning right now")
             return
         messages = self.character.clean()
-        print("You clean your house")
+        messages.append("You clean your house")
         for message in messages:
-            print(message)
+            print("\t" + message)
 
     def do_eat(self, arg):
         """Eat a meal"""
         if self.character.hours_played % 24 not in self.character.disease_stage.get("MEAL_TIMES", range(24)):
-            print("It is not meal time yet")
+            print("\tIt is not meal time yet")
             return
         if (self.character.last_meal < 4 or
                 random.random() < self.character.disease_stage.get("EAT_FAILURE", 0)):
-            print("You don't feel like eating right now")
+            print("\tYou don't feel like eating right now")
             return
         if self.character.groceries < 1:
-            print("You are out of food.  Try 'shop' to get more")
+            print("\tYou are out of food.  Try 'shop' to get more")
             return
         messages = self.character.eat()
-        print("You eat a meal")
+        messages.append("You eat a meal")
         for message in messages:
-            print(message)
+            print("\t" + message)
 
     @validate_int_arg
     def do_work(self, hours):
         """Work to gain money.  Please supply a number of hours, as in 'work 4' """
         if "HOSPITAL_ACTIVITIES" in self.character.disease_stage:
-            print("Your doctor doesn't want you to work while you're in the hospital")
+            print("\tYour doctor doesn't want you to work while you're in the hospital")
             return
         if random.random() < self.character.disease_stage.get("WORK_FAILURE", 0):
-            print("You sit down to work but end up playing video games instead")
+            print("\tYou sit down to work but end up playing video games instead")
             self.do_game(hours)
             return
         if self.character.display_energy() < 20:
-            print("You try to work but your eyes can't focus on the screen.")
+            print("\tYou try to work but your eyes can't focus on the screen.")
             return
         if hours > 8:
-            print("After 8 hours your mind starts to wander...")
+            print("\tAfter 8 hours your mind starts to wander...")
             hours = 8
         if random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
-            print("You get in the zone and loose track of time.  You work for 8 hours")
+            print("\tYou get in the zone and loose track of time.  You work for 8 hours")
             hours = 8
         messages = self.character.work(hours)
-        print("You go to your computer and work.  You gain $" + str(10 * hours))
+        messages.append("You go to your computer and work.  You gain $" + str(10 * hours))
         for message in messages:
-            print(message)
+            print("\t" + message)
 
     @validate_int_arg
     def do_sleep(self, hours):
         """Sleep to get your energy back.  Please supply a number of hours, as in 'sleep 8' """
         if "SLEEP_CAP" in self.character.disease_stage:
             if hours > self.character.disease_stage["SLEEP_CAP"]:
-                print("You can't sleep.  You wake up early feeling fully rested")
+                print("\tYou can't sleep.  You wake up early feeling fully rested")
                 hours = self.character.disease_stage["SLEEP_CAP"]
         if hours > 12:
-            print("After 12 hours you wake up.")
+            print("\tAfter 12 hours you wake up.")
             hours = 12
         messages = self.character.sleep(hours)
-        print("You sleep for " + str(hours) + " hours.  Your energy is now " + str(self.character.display_energy()))
+        messages.append("You sleep for " + str(hours) + " hours.  Your energy is now " + str(self.character.display_energy()))
         if "WAKEUP_DELAY" in self.character.disease_stage:
             hour_str = " hours"
             if self.character.disease_stage["WAKEUP_DELAY"] == 1:
                 hour_str = " hour"
-            print("You stay in bed for " + str(self.character.disease_stage["WAKEUP_DELAY"]) + hour_str)
-            self.character.add_hours(self.character.disease_stage["WAKEUP_DELAY"])
+            messages.append("You stay in bed for " + str(self.character.disease_stage["WAKEUP_DELAY"]) + hour_str)
+            messages.extend(self.character.add_hours(self.character.disease_stage["WAKEUP_DELAY"]))
         for message in messages:
-            print(message)
+            print("\t" + message)
 
     def do_exercise(self, arg):
         """Go for a run"""
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
-            print("You're not allowed outside yet")
+            print("\tYou're not allowed outside yet")
             return
         if self.character.hours_played % 24 in self.character.disease_stage.get("MEAL_TIMES", []):
-            print("A nurse stops you to tell you it is meal time")
+            print("\tA nurse stops you to tell you it is meal time")
             return
         if self.character.display_energy() < 20:
-            print("Contemplating a run makes you feel exhausted.  Maybe tomorrow...")
+            print("\tContemplating a run makes you feel exhausted.  Maybe tomorrow...")
             return
-        print("You go for a run")
-        for message in self.character.exercise():
-            print(message)
+        messages = self.character.exercise()
+        messages.append("You go for a run")
+        for message in messages:
+            print("\t" + message)
 
     def do_shop(self, arg):
         """Buy more groceries"""
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
-            print("You're not allowed outside yet")
+            print("\tYou're not allowed outside yet")
             return
         if self.character.hours_played % 24 in self.character.disease_stage.get("MEAL_TIMES", []):
-            print("A nurse stops you to tell you it is meal time")
+            print("\tA nurse stops you to tell you it is meal time")
             return
         if self.character.display_energy() < 10:
-            print("You're too tired to haul home food.  There must be something in the fridge...")
+            print("\tYou're too tired to haul home food.  There must be something in the fridge...")
             return
         if self.character.hours_played % 24 < 8 or self.character.hours_played % 24 > 22:
-            print("The grocery store is closed right now.")
+            print("\tThe grocery store is closed right now.")
             return
         if self.character.groceries > 21:
-            print("Your fridge is too full for more groceries")
+            print("\tYour fridge is too full for more groceries")
         else:
-            print("You buy another week of groceries")
-            for message in self.character.shopping():
-                print(message)
+            messages = self.character.shopping()
+            messages.append("You buy another week of groceries")
+            for message in messages:
+                print("\t" + message)
 
     @validate_int_arg
     def do_game(self, hours):
         """Play video games.  Please supply a number of hours, as in 'game 1' """
         if hours > 8:
-            print("After 8 hours you lose interest")
+            print("\tAfter 8 hours you lose interest")
             hours = 8
         if random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
-            print("You get in the zone and loose track of time.  You game for 8 hours")
+            print("\tYou get in the zone and loose track of time.  You game for 8 hours")
             hours = 8
         messages = self.character.game(hours)
-        print("You play on your computer.  Your mood is now " + str(self.character.display_mood()))
+        messages.append("You play on your computer.  Your mood is now " + str(self.character.display_mood()))
         for message in messages:
-            print(message)
+            print("\t" + message)
 
     @validate_int_arg
     def do_socialize(self, hours):
         """Go out with friends.  Please supply a number of hours, as in 'socialize 2' """
         if "HOSPITAL_ACTIVITIES"  in self.character.disease_stage:
-            print("You're not allowed outside yet")
+            print("\tYou're not allowed outside yet")
             return
         if self.character.display_energy() < 20:
-            print("You can't summon the energy to face people right now.  How about a quiet night in?")
+            print("\tYou can't summon the energy to face people right now.  How about a quiet night in?")
             return
         if random.random() < self.character.disease_stage.get("SOCIALIZE_FAILURE", 0):
-            print("You get too anxious thinking about people right now.  How about a quiet night in?")
+            print("\tYou get too anxious thinking about people right now.  How about a quiet night in?")
             return
         if hours > 6:
-            print("None of your friends are free for more than 6 hours")
+            print("\tNone of your friends are free for more than 6 hours")
             hours = 6
         if random.random() < self.character.disease_stage.get("FOCUS_CHANCE", 0):
-            print("You lose track of time and stay out for 6 hours")
+            print("\tYou lose track of time and stay out for 6 hours")
             hours = 6
             effect = random.choice(self.character.disease_stage["SOCIALIZING_EFFECTS"])
             if effect == "DRUNK":
-                print("You have a drink, and then another and another and another.  You black out")
+                print("\tYou have a drink, and then another and another and another.  You black out")
                 if random.random() < ALCOHOL_POISONING_CHANCE:
-                    print("You get severe alcohol poisoning")
+                    print("\tYou get severe alcohol poisoning")
                     self.character.dead = True
                     return True
-                print("Later your friends, freaked out, tell you you thought you were a character from the last book you read")
+                print("\tLater your friends, freaked out, tell you you thought you were a character from the last book you read")
             elif effect == "INAPPROPRIATE":
-                print("You start making more and more inappropriate jokes.  Some people laugh riotously, but an old friend looks disgusted")
+                print("\tYou start making more and more inappropriate jokes.  Some people laugh riotously, but an old friend looks disgusted")
             elif effect == "PROMISCUOUS":
-                print("You hook up with someone you just met")
+                print("\tYou hook up with someone you just met")
         messages = self.character.socialize(hours)
+        messages.append("You hang out with friends.  You spend $" + str(10 * hours))
         for message in messages:
-            print(message)
-        print("You hang out with friends.  You spend $" + str(10 * hours))
+            print("\t" + message)
 
     def do_call(self, arg):
         """Call someone on the phone, as in 'call mom' """
         if self.character.hours_played % 24 in self.character.disease_stage.get("MEAL_TIMES", []):
-            print("A nurse stops you to tell you it is meal time")
+            print("\tA nurse stops you to tell you it is meal time")
             return
         caller_known = False
         for key, synonym_list in CALL_DICT.items():
@@ -638,33 +647,33 @@ class Sdabto_Cmd(cmd.Cmd):
                 caller_known = True
                 break
         if not caller_known:
-            print("Sorry, recipient unknown")
+            print("\tSorry, recipient unknown")
             return
         for message in self.character.call(arg):
-            print(message)
+            print("\t" + message)
 
     @validate_int_arg
     def do_read(self, hours):
         """Read a book.  Please supply a number of hours, as in 'read 4' """
         if random.random() < self.character.disease_stage.get("LEISURE_FAILURE", 0):
-            print("You try to read but the words swim on the page")
+            print("\tYou try to read but the words swim on the page")
             return
         if hours > 4:
             hours = 4
-            print("After 4 hours you lose interest")
+            print("\tAfter 4 hours you lose interest")
         messages = self.character.read(hours)
-        print("You read a book")
+        messages.append("You read a book")
         for message in messages:
-            print(message)
+            print("\t" + message)
 
     @validate_int_arg
     def watch(self, hours):
         if random.random() < self.character.disease_stage.get("LEISURE_FAILURE", 0):
-            print("You try to watch something but you can't stay focused on the plot")
-            return
+            print("\tYou try to watch something but you can't stay focused on the plot")
+            return None
         if hours > 4:
             hours = 4
-            print("After 4 hours you lose interest")
+            print("\tAfter 4 hours you lose interest")
         messages = self.character.watch(hours)
         return messages
 
@@ -672,10 +681,10 @@ class Sdabto_Cmd(cmd.Cmd):
         """Watch tv or a movie for a number of hours, as in 'watch movie 4' """
         args = arg.split()
         if len(args) < 2:
-            print("Please pick tv or movie and give a number of hours, as in 'watch movie 4'")
+            print("\tPlease pick tv or movie and give a number of hours, as in 'watch movie 4'")
             return
         if args[0] != "tv" and args[0] != "movie":
-            print("You can watch tv or movies, as in 'watch movie 4'")
+            print("\tYou can watch tv or movies, as in 'watch movie 4'")
             return
         messages = self.watch(args[1])
         if messages is None:
@@ -683,9 +692,9 @@ class Sdabto_Cmd(cmd.Cmd):
         article = ""
         if args[0] == "movie":
             article = "a "
-        print("You watch " + article + args[0])
+        messages.append("You watch " + article + args[0])
         for message in messages:
-            print(message)
+            print("\t" + message)
 
 def main():
     Sdabto_Cmd(Character()).cmdloop()
