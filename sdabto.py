@@ -1,3 +1,6 @@
+# Some Days Are Better Than Others
+# By Isaac Havard - ihavard@gmail.com
+# Copyright 2014
 import cmd
 from functools import wraps
 import random
@@ -463,9 +466,9 @@ class Sdabto_Cmd(cmd.Cmd):
         self.bad_command = False
         return stop
 
-    def do_exec(self, arg):
-        """for debugging only"""
-        exec(arg)
+    #def do_exec(self, arg):
+    #    """for debugging only"""
+    #    exec(arg)
 
     def do_exit(self, arg):
         """Exit the program"""
